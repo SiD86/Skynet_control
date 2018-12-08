@@ -1,6 +1,5 @@
 #include <QQuickItem>
 #include "core.h"
-#include "logcontroller.h"
 #include "version.h"
 
 extern WirelessController g_wirelessController;
@@ -11,48 +10,38 @@ extern WirelessController g_wirelessController;
 Core::Core() : QObject(nullptr) {
 	memset(&m_controlData, 0, sizeof(m_controlData));
 	memset(&m_stateData, 0, sizeof(m_stateData));
-	memset(m_PID[0], 0, sizeof(m_PID[0]));
-	memset(m_PID[1], 0, sizeof(m_PID[1]));
-    memset(m_PID[2], 0, sizeof(m_PID[2]));
 }
 
 Core::~Core() {
-	delete m_logController;
-	delete m_joystick;
+	//delete m_logController;
+	//delete m_joystick;
 }
 
 void Core::initialize(QQuickItem* rootObject) {
 
-	m_debugWidget = rootObject->findChild<QQuickItem*>("debug");
-
-	// Initialize Log Controller
-	m_logController = new LogController(&m_stateData, &m_controlData, this);
-
-	// Initialize Joystick
-	m_joystick = new Joystick(this);
-
 	// Initialize Wireless Controller
 	g_wirelessController.initialize((quint8*)&m_controlData, (quint8*)&m_stateData);
-	connect(&g_wirelessController, SIGNAL(beginTxData()), SLOT(constructControlPacket()));
-	connect(&g_wirelessController, SIGNAL(dataRxSuccess()), SLOT(statePacketProcess()));
-	connect(&g_wirelessController, &WirelessController::updateCounters, [this](int rx, int tx, int error) {
+	//connect(&g_wirelessController, SIGNAL(beginTxData()), SLOT(constructControlPacket()));
+	//connect(&g_wirelessController, SIGNAL(dataRxSuccess()), SLOT(statePacketProcess()));
+	/*connect(&g_wirelessController, &WirelessController::updateCounters, [this](int rx, int tx, int error) {
 		emit wirelessControllerCountersUpdated(rx, tx, error);
-	} );
+	} );*/
 
-	emit updateQML();
+	g_wirelessController.start();
+	//emit updateQML();
 }
 
 //
 // SLOTS
 //
 QVariant Core::getVersion() {
-	return QString::number(MAIN_VERSION) + "." + QString::number(SUB_VERSION) + "." + QString::number(AUX_VERSION);
+	return 0;//QString::number(MAIN_VERSION) + "." + QString::number(SUB_VERSION) + "." + QString::number(AUX_VERSION);
 }
 
 void Core::constructControlPacket() {
 
 	// Clear packet
-	memset(&m_controlData, 0, sizeof(m_controlData));
+	/*memset(&m_controlData, 0, sizeof(m_controlData));
 
 	// Disable quadcopter if joystick disconnected
 	if (m_joystick->is_available() == false) {
@@ -83,13 +72,5 @@ void Core::constructControlPacket() {
 	m_controlData.XYZ[0] = js.XYZ[0];
 	m_controlData.XYZ[1] = js.XYZ[1];
 	m_controlData.XYZ[2] = js.XYZ[2];
-	m_controlData.thrust = js.thrust;
-}
-
-void Core::statePacketProcess() {
-
-	emit updateQML();
-
-    // Write to log file
-	m_logController->writeParameters();
+	m_controlData.thrust = js.thrust;*/
 }

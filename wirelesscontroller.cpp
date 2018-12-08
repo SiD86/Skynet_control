@@ -1,95 +1,175 @@
+#include <QApplication>
 #include <QMessageBox>
 #include <QTimer>
-#include <QApplication>
 #include "wirelesscontroller.h"
-#include "TXRX_PROTOCOL.h"
-#define SEND_PACKET_INTERVAL_MS				(100)
-#define SERVER_IP_ADDRESS					("111.111.111.111")
-#define SERVER_PORT							(3333)
+#include "wireless_protocol.h"
+#define SEND_INTERVAL_MS				(500)
+#define SERVER_IP_ADDRESS				("111.111.111.111")
+#define SERVER_PORT						(3333)
 
-const int PACKET_SIZE = sizeof(TXRX::fly_controller_packet_t);
-const int DATA_SIZE = sizeof(TXRX::fly_controller_packet_t::data);
 
-//
-// PUBLIC
-//
-WirelessController::WirelessController(QObject* parent) : QObject(parent) {
+const int PACKET_SIZE = sizeof(wireless_protocol_frame_t);
+const int DATA_SIZE = sizeof(wireless_protocol_frame_t::data);
+
+static quint32 calculateCRC(const quint8* data);
+
+
+//  ***************************************************************************
+/// @brief	Wireless controller constructor
+/// @param	parent: not use
+/// @return	none
+//  ***************************************************************************
+WirelessController::WirelessController() : QObject(nullptr) {
 	m_txDataAddress = nullptr;
 	m_rxDataAddress = nullptr;
-	m_txCount = 0;
-	m_rxCount = 0;
-	m_errorCount = 0;
-	m_skipCount = 0;
+	m_txCounter = 0;
+	m_rxCounter = 0;
+	m_errorCounter = 0;
+	m_skipCounter = 0;
 }
 
-void WirelessController::initialize(quint8* txData, quint8* rxData) {
+//  ***************************************************************************
+/// @brief	Wireless controller initialization
+/// @param	txDataAddress: TX data address
+/// @param	txDataAddress: RX data address
+/// @return	none
+//  ***************************************************************************
+void WirelessController::init(quint8* txDataAddress, quint8* rxDataAddress) {
 
-	m_txDataAddress = txData;
-	m_rxDataAddress = rxData;
+	m_txDataAddress = txDataAddress;
+	m_rxDataAddress = rxDataAddress;
 
-	// Initialize UDP socket
-	connect(&m_UDPSocket, SIGNAL(readyRead()), SLOT(UDPRecv()));
+	// Setup UDP socket
+	connect(&m_socket, &QUdpSocket::readyRead, this, &WirelessController::recv);
 
-	// Initialize send packet timer
-	m_sendTimer.setInterval(SEND_PACKET_INTERVAL_MS);
-	connect(&m_sendTimer, SIGNAL(timeout()), SLOT(UDPSend()));
+	// Setup send packet timer
+	m_sendTimer.setInterval(SEND_INTERVAL_MS);
+	connect(&m_sendTimer, &QTimer::timeout, this, &WirelessController::send);
 }
 
+//  ***************************************************************************
+/// @brief	Start wireless communication
+/// @param	none
+/// @return	true - start success, false - no
+//  ***************************************************************************
 bool WirelessController::start() {
 
-	// Setup socket
-	if (m_UDPSocket.bind(SERVER_PORT, QUdpSocket::DontShareAddress) == false) {
-		QMessageBox::critical(nullptr, "Ошибка", "Ошибка при подключении к порту");
+	if (m_socket.bind(SERVER_PORT, QUdpSocket::DontShareAddress) == false) {
 		return false;
 	}
 
+	// Start send control data timer
 	m_sendTimer.start();
 
 	// Reset counters
-	m_txCount = 0;
-	m_rxCount = 0;
-	m_errorCount = 0;
-	m_skipCount = 0;
+	m_txCounter = 0;
+	m_rxCounter = 0;
+	m_errorCounter = 0;
+	m_skipCounter = 0;
+
 	return true;
 }
 
+//  ***************************************************************************
+/// @brief	Stop wireless communication
+/// @param	none
+/// @return	none
+//  ***************************************************************************
 void WirelessController::stop() {
 	m_sendTimer.stop();
-	m_UDPSocket.close();
+	m_socket.close();
 }
 
-bool WirelessController::runConnection() {
 
-	if (this->start() == false)
-		return false;
 
-	QTimer timer;
-	timer.setInterval(10000);
-	timer.setSingleShot(true);
-	timer.start();
+//  ***************************************************************************
+/// @brief	Slot for send UPD data
+/// @param	none
+/// @return	none
+//  ***************************************************************************
+void WirelessController::send() {
 
-	while (m_rxCount < 10) {
+	emit prepareTxData();
 
-		QApplication::processEvents();
+	// Building control frame
+	wireless_protocol_frame_t frame;
+	memcpy(frame.data, m_txDataAddress, DATA_SIZE);
+	frame.CRC = calculateCRC(frame.data);
 
-		if (timer.isActive() == false) {
-			this->stop();
-			return false;
-		}
+	// Send frame
+	m_socket.writeDatagram(reinterpret_cast<char*>(&frame), sizeof(wireless_protocol_frame_t),
+						   QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
+
+	// Update counters
+	++m_txCounter;
+	emit countersUpdated(m_txCounter, m_rxCounter, m_skipCounter, m_errorCounter);
+}
+
+//  ***************************************************************************
+/// @brief	Slot for recv UPD data
+/// @param	none
+/// @return	none
+//  ***************************************************************************
+void WirelessController::recv() {
+
+	static int prev_packet_number = -1;
+
+    // Read packet
+	wireless_protocol_frame_t frame;
+	QHostAddress datagramAddress;
+	m_socket.readDatagram(reinterpret_cast<char*>(&frame), sizeof(wireless_protocol_frame_t),
+						  &datagramAddress);
+
+	// Check IP address
+	if (datagramAddress.isEqual(QHostAddress(SERVER_IP_ADDRESS)) == false) {
+		++m_errorCount;
+		emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
+        return;
 	}
 
-	return true;
+	// Check CRC
+	if (frame.CRC != calcCRC(frame.data)) {
+		++m_errorCount;
+		emit updateCounters(m_txCount, m_rxCount,m_skipCount,  m_errorCount);
+        return;
+    }
+
+	// Check packet number (for communication quality)
+	if (prev_packet_number == -1)
+		prev_packet_number = frame.number;
+
+	if (prev_packet_number < frame.number) {
+
+		if (prev_packet_number + 1 != frame.number) {
+			m_skipCount += frame.number - prev_packet_number;
+		}
+		prev_packet_number = frame.number;
+	}
+	else {
+		prev_packet_number = frame.number;
+	}
+
+
+    // Copy state data
+	memcpy(m_rxDataAddress, frame.data, DATA_SIZE);
+
+	// Update counters
+	++m_rxCount;
+	emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
+
+	// Start TX timer if need
+	if (m_sendTimer.isActive() == false)
+		m_sendTimer.start();
+
+	emit dataRxSuccess();
 }
 
-void WirelessController::stopConnection() {
-	this->stop();
-}
 
 
-//
-// PROTECTED
-//
-quint32 WirelessController::calcCRC(const quint8* data) {
+
+
+
+static quint32 calculateCRC(const quint8* data) {
 
 	quint32 CRC = 0;
 
@@ -104,80 +184,4 @@ quint32 WirelessController::calcCRC(const quint8* data) {
 	}
 
 	return CRC;
-}
-
-
-//
-// SLOTS
-//
-void WirelessController::UDPSend() {
-
-	emit beginTxData();
-
-	// Building packet
-    TXRX::fly_controller_packet_t packet;
-	memcpy(packet.data, m_txDataAddress, DATA_SIZE);
-	packet.CRC = calcCRC(packet.data);
-
-    // Send packet
-    QHostAddress host_addr(SERVER_IP_ADDRESS);
-	m_UDPSocket.writeDatagram((char*)&packet, PACKET_SIZE, host_addr, SERVER_PORT);
-
-	// Update counters
-	++m_txCount;
-	emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
-}
-
-void WirelessController::UDPRecv() {
-
-	static int prev_packet_number = -1;
-
-    // Read packet
-    TXRX::fly_controller_packet_t packet;
-	QHostAddress datagramAddress;
-	m_UDPSocket.readDatagram((char*)&packet, PACKET_SIZE, &datagramAddress);
-
-	// Check IP address
-	if (datagramAddress.isEqual(QHostAddress(SERVER_IP_ADDRESS)) == false) {
-		++m_errorCount;
-		emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
-        return;
-	}
-
-	// Check CRC
-	quint32 CRC = calcCRC(packet.data);
-	if (packet.CRC != CRC) {
-		++m_errorCount;
-		emit updateCounters(m_txCount, m_rxCount,m_skipCount,  m_errorCount);
-        return;
-    }
-
-	// Check packet number (for communication quality)
-	if (prev_packet_number == -1)
-		prev_packet_number = packet.number;
-
-	if (prev_packet_number < packet.number) {
-
-		if (prev_packet_number + 1 != packet.number) {
-			m_skipCount += packet.number - prev_packet_number;
-		}
-		prev_packet_number = packet.number;
-	}
-	else {
-		prev_packet_number = packet.number;
-	}
-
-
-    // Copy state data
-	memcpy(m_rxDataAddress, packet.data, DATA_SIZE);
-
-	// Update counters
-	++m_rxCount;
-	emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
-
-	// Start TX timer if need
-	if (m_sendTimer.isActive() == false)
-		m_sendTimer.start();
-
-	emit dataRxSuccess();
 }

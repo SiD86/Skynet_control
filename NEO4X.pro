@@ -7,16 +7,18 @@
 QT += core gui printsupport network quick charts qml
 QT += serialport
 
-INCLUDEPATH += $$_PRO_FILE_PWD_\SDL2-2.0.4\include
-LIBS += -L$$_PRO_FILE_PWD_\SDL2-2.0.4\lib\x64\ -lSDL2
-
 TARGET = NEO4X
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
+    core.cpp \
+    wirelesscontroller.cpp
 
 HEADERS  += \
+    core.h \
+    wirelesscontroller.h \
+    wireless_protocol.h
 
 FORMS    +=
 

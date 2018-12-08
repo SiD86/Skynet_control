@@ -4,28 +4,25 @@
 #include <QObject>
 #include <QTimer>
 #include <QtNetwork/qudpsocket.h>
-#include "TXRX_PROTOCOL.h"
+#include "wireless_protocol.h"
 
 class WirelessController : public QObject
 {
 	Q_OBJECT
 protected:
-	QUdpSocket m_UDPSocket;
+	QUdpSocket m_socket;
 	QTimer m_sendTimer;
 	quint8* m_txDataAddress;
 	quint8* m_rxDataAddress;
 
-	int m_txCount;
-	int m_rxCount;
-	int m_skipCount;
-	int m_errorCount;
-
-protected:
-	quint32 calcCRC(const quint8 *data);
+	int m_txCounter;
+	int m_rxCounter;
+	int m_skipCounter;
+	int m_errorCounter;
 
 public slots:
-	void UDPSend();
-	void UDPRecv();
+	void send();
+	void recv();
 
 public slots: // From QML
 	bool runConnection();
@@ -34,13 +31,13 @@ public slots: // From QML
 	void stop();
 
 signals:
-	void beginTxData();
+	void prepareTxData();
 	void dataRxSuccess();
-	void updateCounters(int tx, int rx, int skip, int error);
+	void countersUpdated(int tx, int rx, int skip, int error);
 
 public:
-	explicit WirelessController(QObject* parent = 0);
-	void initialize(quint8* txData, quint8* rxData);
+	explicit WirelessController();
+	void init(quint8* txDataAddress, quint8* rxDataAddress);
 };
 
 #endif // WIRELESSCONTROLLER_H
