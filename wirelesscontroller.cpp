@@ -3,13 +3,13 @@
 #include <QTimer>
 #include "wirelesscontroller.h"
 #include "wireless_protocol.h"
+
 #define SEND_INTERVAL_MS				(500)
 #define SERVER_IP_ADDRESS				("111.111.111.111")
 #define SERVER_PORT						(3333)
+#define FRAME_SIZE						(sizeof(wireless_protocol_frame_t))
+#define FRAME_DATA_SIZE					(sizeof(wireless_protocol_frame_t::data))
 
-
-const int PACKET_SIZE = sizeof(wireless_protocol_frame_t);
-const int DATA_SIZE = sizeof(wireless_protocol_frame_t::data);
 
 static quint32 calculateCRC(const quint8* data);
 
@@ -93,11 +93,11 @@ void WirelessController::send() {
 
 	// Building control frame
 	wireless_protocol_frame_t frame;
-	memcpy(frame.data, m_txDataAddress, DATA_SIZE);
+	memcpy(frame.data, m_txDataAddress, FRAME_DATA_SIZE);
 	frame.CRC = calculateCRC(frame.data);
 
 	// Send frame
-	m_socket.writeDatagram(reinterpret_cast<char*>(&frame), sizeof(wireless_protocol_frame_t),
+	m_socket.writeDatagram(reinterpret_cast<char*>(&frame), FRAME_SIZE,
 						   QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
 
 	// Update counters
@@ -112,68 +112,62 @@ void WirelessController::send() {
 //  ***************************************************************************
 void WirelessController::recv() {
 
-	static int prev_packet_number = -1;
-
     // Read packet
 	wireless_protocol_frame_t frame;
 	QHostAddress datagramAddress;
-	m_socket.readDatagram(reinterpret_cast<char*>(&frame), sizeof(wireless_protocol_frame_t),
-						  &datagramAddress);
+	m_socket.readDatagram(reinterpret_cast<char*>(&frame), FRAME_SIZE, &datagramAddress);
 
-	// Check IP address
-	if (datagramAddress.isEqual(QHostAddress(SERVER_IP_ADDRESS)) == false) {
-		++m_errorCount;
-		emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
-        return;
-	}
+	do {
 
-	// Check CRC
-	if (frame.CRC != calcCRC(frame.data)) {
-		++m_errorCount;
-		emit updateCounters(m_txCount, m_rxCount,m_skipCount,  m_errorCount);
-        return;
-    }
-
-	// Check packet number (for communication quality)
-	if (prev_packet_number == -1)
-		prev_packet_number = frame.number;
-
-	if (prev_packet_number < frame.number) {
-
-		if (prev_packet_number + 1 != frame.number) {
-			m_skipCount += frame.number - prev_packet_number;
+		// Check IP address
+		if (datagramAddress.isEqual(QHostAddress(SERVER_IP_ADDRESS)) == false) {
+			++m_errorCounter;
+			break;
 		}
-		prev_packet_number = frame.number;
+
+		// Check CRC
+		if (frame.CRC != calculateCRC(frame.data)) {
+			++m_errorCounter;
+			break;
+		}
+
+		// Update counters
+		++m_rxCounter;
+
+		// Check packet number (for calculate communication quality)
+		static quint32 prev_packet_number = 0xFFFFFFFF;
+		if (prev_packet_number < frame.number && prev_packet_number != 0xFFFFFFFF) {
+			m_skipCounter += frame.number - prev_packet_number + 1;
+			prev_packet_number = frame.number;
+		}
+		else {
+			prev_packet_number = frame.number;
+		}
+
+		// Copy state data
+		memcpy(m_rxDataAddress, frame.data, FRAME_DATA_SIZE);
+		emit dataRxSuccess();
+
 	}
-	else {
-		prev_packet_number = frame.number;
-	}
+	while (false);
 
-
-    // Copy state data
-	memcpy(m_rxDataAddress, frame.data, DATA_SIZE);
-
-	// Update counters
-	++m_rxCount;
-	emit updateCounters(m_txCount, m_rxCount, m_skipCount, m_errorCount);
-
-	// Start TX timer if need
-	if (m_sendTimer.isActive() == false)
-		m_sendTimer.start();
-
-	emit dataRxSuccess();
+	emit countersUpdated(m_txCounter, m_rxCounter, m_skipCounter, m_errorCounter);
 }
 
 
 
 
 
-
+//  ***************************************************************************
+/// @brief	Calculate frame CRC
+/// @param	none
+/// @return	none
+//  ***************************************************************************
 static quint32 calculateCRC(const quint8* data) {
 
 	quint32 CRC = 0;
 
-	for (quint32 i = 0; i < DATA_SIZE; i += 2) {
+	for (quint32 i = 0; i < FRAME_DATA_SIZE; i += 2) {
 
 		quint16 value = (data[i] << 8) | data[i + 1];
 		if (value % 3 == 0)

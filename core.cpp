@@ -20,7 +20,7 @@ Core::~Core() {
 void Core::initialize(QQuickItem* rootObject) {
 
 	// Initialize Wireless Controller
-	g_wirelessController.initialize((quint8*)&m_controlData, (quint8*)&m_stateData);
+	g_wirelessController.init((quint8*)&m_controlData, (quint8*)&m_stateData);
 	//connect(&g_wirelessController, SIGNAL(beginTxData()), SLOT(constructControlPacket()));
 	//connect(&g_wirelessController, SIGNAL(dataRxSuccess()), SLOT(statePacketProcess()));
 	/*connect(&g_wirelessController, &WirelessController::updateCounters, [this](int rx, int tx, int error) {

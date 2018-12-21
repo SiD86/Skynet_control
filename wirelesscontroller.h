@@ -25,8 +25,6 @@ public slots:
 	void recv();
 
 public slots: // From QML
-	bool runConnection();
-	void stopConnection();
 	bool start();
 	void stop();
 
