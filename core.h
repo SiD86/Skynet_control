@@ -1,30 +1,19 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef CORE_H
+#define CORE_H
 
-#include <QMainWindow>
-#include <QQuickItem>
-#include "wireless_protocol.h"
-#include "wirelesscontroller.h"
+#include <QObject>
+#include "wirelessmodbus.h"
 
-class Core : public QObject
-{
+class Core : public QObject {
+
 	Q_OBJECT
-private:
-	wireless_protocol_control_data_t m_controlData;
-	wireless_protocol_state_data_t m_stateData;
 
-signals: // To QML interface
-	void wirelessControllerCountersUpdated(int rx, int tx, int error);
-	void updateQML();
-
-public slots:
-	QVariant getVersion();
-	void constructControlPacket();				// From WirelessController
-	//void statePacketProcess();					// From WirelessController
+protected:
+	WirelessModbus m_wirelessModbus;
 
 public:
-	explicit Core();
-	virtual ~Core();
-	void initialize(QQuickItem* rootObject);
+	explicit Core(QObject *parent = nullptr);
+
 };
-#endif // MAINWINDOW_H
+
+#endif // CORE_H
