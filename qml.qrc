@@ -11,5 +11,6 @@
         <file>QML/WidgetSystemStatus.qml</file>
         <file>images/scanner.png</file>
         <file>images/white_noise.gif</file>
+        <file>QML/WidgetHexapod.qml</file>
     </qresource>
 </RCC>

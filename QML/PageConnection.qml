@@ -3,9 +3,8 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 Page {
-    id: page
-    width: 1300
-    height: 650
+	width: 1255
+	height: 650
     font.pointSize: 10
 
     header: Label {

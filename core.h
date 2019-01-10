@@ -2,6 +2,7 @@
 #define CORE_H
 
 #include <QObject>
+#include <QTimer>
 #include "wirelessmodbus.h"
 
 class Core : public QObject {
@@ -10,6 +11,13 @@ class Core : public QObject {
 
 protected:
 	WirelessModbus m_wirelessModbus;
+	QTimer m_timer;
+
+signals:
+	void systemStatusUpdated(QVariant systemStatus);
+
+public slots:
+	void timerHandler();
 
 public:
 	explicit Core(QObject *parent = nullptr);
