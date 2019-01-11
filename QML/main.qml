@@ -2,21 +2,19 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 
 ApplicationWindow {
-	visible: true
-	x: 1700
-	y: 50
-	width: 1255
-	height: 650
-	title: qsTr("SKYNET")
+    visible: true
+    width: 1215
+    height: 590
+    title: qsTr("SKYNET")
 
-	SwipeView {
-		anchors.fill: parent
-		currentIndex: 1
+    SwipeView {
+        anchors.fill: parent
+        currentIndex: 1
 
-		PageConnection {
-		}
+        PageConnection {
+        }
 
-		PageControl {
-		}
-	}
+        PageControl {
+        }
+    }
 }

@@ -1,10 +1,11 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import QtGraphicalEffects 1.12
 
 Page {
-	width: 1255
-	height: 650
+    width: 1215
+    height: 590
     font.pointSize: 10
 
     header: Label {

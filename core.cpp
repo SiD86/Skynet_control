@@ -3,8 +3,7 @@
 
 
 void Core::timerHandler() {
-	emit systemStatusUpdated(rand() * 1000);
-	qDebug() << "TIMER EVENT";
+	emit systemStatusUpdated(0x00/*rand() * 1000*/);
 }
 
 Core::Core(QObject *parent) : QObject(parent) {

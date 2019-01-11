@@ -12,5 +12,6 @@
         <file>images/scanner.png</file>
         <file>images/white_noise.gif</file>
         <file>QML/WidgetHexapod.qml</file>
+        <file>QML/WidgetGaits.qml</file>
     </qresource>
 </RCC>
