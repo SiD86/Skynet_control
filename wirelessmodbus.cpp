@@ -13,33 +13,6 @@
 #define MODBUS_EXCEPTION					(0x80)	// Function Code: Exception
 
 
-//
-// PROTECTED
-//
-uint16_t WirelessModbus::calculateCRC16(const uint8_t* frame, uint32_t size) {
-
-	uint16_t crc16 = 0xFFFF;
-	uint16_t data = 0;
-	uint16_t k = 0;
-
-	while (size--) {
-		crc16 ^= *frame++;
-		k = 8;
-		while (k--) {
-			data = crc16;
-			crc16 >>= 1;
-			if (data & 0x0001) {
-				crc16 ^= CRC16_POLYNOM;
-			}
-		}
-	}
-	return crc16;
-}
-
-
-//
-// PUBLIC
-//
 WirelessModbus::WirelessModbus(QObject* parent) : QObject(parent) {
 
 	timeoutTimer.setSingleShot(true);
@@ -177,4 +150,27 @@ bool WirelessModbus::writeEEPROM(uint16_t address, uint8_t* data, uint8_t bytesC
 
 
 	return true;
+}
+
+
+
+
+uint16_t WirelessModbus::calculateCRC16(const uint8_t* frame, uint32_t size) {
+
+	uint16_t crc16 = 0xFFFF;
+	uint16_t data = 0;
+	uint16_t k = 0;
+
+	while (size--) {
+		crc16 ^= *frame++;
+		k = 8;
+		while (k--) {
+			data = crc16;
+			crc16 >>= 1;
+			if (data & 0x0001) {
+				crc16 ^= CRC16_POLYNOM;
+			}
+		}
+	}
+	return crc16;
 }

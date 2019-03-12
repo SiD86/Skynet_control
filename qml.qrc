@@ -1,17 +1,12 @@
 <RCC>
     <qresource prefix="/">
-        <file>qtquickcontrols2.conf</file>
         <file>QML/main.qml</file>
-        <file>images/hexapod.png</file>
-        <file>QML/MyControlStatusLabel.qml</file>
-        <file>QML/PageConnection.qml</file>
-        <file>QML/PageControl.qml</file>
-        <file>QML/WidgetModulesStatus.qml</file>
-        <file>QML/WidgetMultimediaState.qml</file>
-        <file>QML/WidgetSystemStatus.qml</file>
-        <file>images/scanner.png</file>
-        <file>images/white_noise.gif</file>
-        <file>QML/WidgetHexapod.qml</file>
-        <file>QML/WidgetGaits.qml</file>
+        <file>QML/StartPage.qml</file>
+        <file>images/logo.png</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>QML/ConnectionPage.qml</file>
+        <file>QML/ControlPage.qml</file>
+        <file>QML/ImageButton.qml</file>
     </qresource>
+    <qresource prefix="/QML"/>
 </RCC>

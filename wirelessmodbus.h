@@ -10,13 +10,6 @@ class WirelessModbus : public QObject {
 
 	Q_OBJECT
 
-protected:
-	QTcpSocket m_socket;
-	QTimer timeoutTimer;
-
-protected:
-	uint16_t calculateCRC16(const uint8_t* frame, uint32_t size);
-
 public:
 	explicit WirelessModbus(QObject* parent = nullptr);
 	virtual bool connectToServer(void);
@@ -25,6 +18,13 @@ public:
 	virtual bool writeRAM(uint16_t address, uint8_t* data, uint8_t bytesCount);
 	virtual bool readEEPROM(uint16_t address, uint8_t* buffer, uint8_t bytesCount);
 	virtual bool writeEEPROM(uint16_t address, uint8_t* data, uint8_t bytesCount);
+
+protected:
+	uint16_t calculateCRC16(const uint8_t* frame, uint32_t size);
+
+private:
+	QTcpSocket m_socket;
+	QTimer timeoutTimer;
 };
 
 #endif // WIRELESSMODBUS_H

@@ -14,9 +14,8 @@ int main(int argc, char *argv[]) {
 	QQmlApplicationEngine engine;
 	engine.rootContext()->setContextProperty("CppCore", &core);
 	engine.load(QUrl(QStringLiteral("qrc:/QML/main.qml")));
-	if (engine.rootObjects().isEmpty()) {
+	if (engine.rootObjects().isEmpty())
 		return -1;
-	}
 
 	return app.exec();
 }

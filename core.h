@@ -21,6 +21,7 @@ public slots:
 
 public:
 	explicit Core(QObject *parent = nullptr);
+	Q_INVOKABLE bool connectToServer();
 
 };
 
