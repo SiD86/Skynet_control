@@ -15,17 +15,20 @@ Item {
 	MouseArea {
 		z: 1
 		anchors.fill: parent
+		hoverEnabled: true
 
 		onClicked: {
-			root.bottonClicked
+			root.buttonClicked()
 		}
-		onPressed: {
-			frameRectangle.border.color = "#00FFFF"
-			root.buttonPressed
-		}
-		onReleased: {
-			frameRectangle.border.color = "#AAAAAA"
-			root.buttonReleased
+		onPressedChanged: {
+
+			if (pressed) {
+				frameRectangle.border.color = "#00FFFF"
+				root.buttonPressed()
+			} else {
+				frameRectangle.border.color = "#AAAAAA"
+				root.buttonReleased()
+			}
 		}
 	}
 

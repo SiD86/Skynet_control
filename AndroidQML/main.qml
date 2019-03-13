@@ -17,7 +17,7 @@ ApplicationWindow {
 			onStartConnectToServer: {
 				swipeView.currentIndex = 1
 				if (CppCore.connectToServer()) {
-					swipeView.currentIndex = 3
+					swipeView.currentIndex = 2
 				} else {
 					swipeView.currentIndex = 0
 					startPage.showErrorMessage(

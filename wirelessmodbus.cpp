@@ -45,6 +45,7 @@ bool WirelessModbus::connectToServer(void) {
 		QGuiApplication::processEvents();
 	}
 
+	qDebug() << "WirelessModbus: [connectToServer] Connect success";
 	return m_socket.state() == QTcpSocket::SocketState::ConnectedState;
 }
 
