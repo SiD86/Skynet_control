@@ -1,12 +1,34 @@
 <RCC>
     <qresource prefix="/">
-        <file>QML/main.qml</file>
-        <file>QML/StartPage.qml</file>
         <file>images/logo.png</file>
         <file>qtquickcontrols2.conf</file>
+        <file>images/control_64x64.png</file>
+        <file>images/info_64x64.png</file>
+        <file>images/settings_64x64.png</file>
+        <file>images/hexapod.png</file>
+        <file>images/scanner.png</file>
+        <file>AndroidQML/ConnectionPage.qml</file>
+        <file>AndroidQML/ControlPage.qml</file>
+        <file>AndroidQML/ImageButton.qml</file>
+        <file>AndroidQML/main.qml</file>
+        <file>AndroidQML/StartPage.qml</file>
         <file>QML/ConnectionPage.qml</file>
         <file>QML/ControlPage.qml</file>
         <file>QML/ImageButton.qml</file>
+        <file>QML/main.qml</file>
+        <file>QML/MyControlStatusLabel.qml</file>
+        <file>QML/StartPage.qml</file>
+        <file>QML/WidgetHexapod.qml</file>
+        <file>QML/WidgetModulesStatus.qml</file>
+        <file>QML/WidgetSystemStatus.qml</file>
+        <file>images/arrowDown.png</file>
+        <file>images/arrowLeft.png</file>
+        <file>images/arrowRight.png</file>
+        <file>images/arrowUp.png</file>
+        <file>images/down.png</file>
+        <file>images/up.png</file>
+        <file>images/power_pressed.png</file>
+        <file>images/power_released.png</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

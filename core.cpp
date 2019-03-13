@@ -27,3 +27,60 @@ bool Core::connectToServer() {
 
 	return m_wirelessModbus.connectToServer();
 }
+
+bool Core::sendGetUpCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_UP));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendGetDownCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DOWN));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendDirectMoveCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendReverseMoveCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendRotateLeftCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendRotateRightCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendStopMoveCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_NONE));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+

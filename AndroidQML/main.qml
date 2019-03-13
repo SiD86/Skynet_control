@@ -3,15 +3,14 @@ import QtQuick.Controls 2.5
 
 ApplicationWindow {
 	visible: true
-	width: 1000
-	height: 600
+	width: 500
+	height: 888
 	color: "#000000"
 
 	SwipeView {
 		id: swipeView
 		anchors.fill: parent
 		currentIndex: 0
-		clip: true
 
 		StartPage {
 			id: startPage
@@ -22,7 +21,7 @@ ApplicationWindow {
 				} else {
 					swipeView.currentIndex = 0
 					startPage.showErrorMessage(
-								qsTr("Ошибка при подключении к устройству..."))
+								qsTr("Ошибка при подключении к устройству"))
 				}
 			}
 		}
@@ -35,17 +34,4 @@ ApplicationWindow {
 			id: controlPage
 		}
 	}
-
-
-	/*footer: TabBar {
-		id: tabBar
-		currentIndex: swipeView.currentIndex
-
-		TabButton {
-			text: qsTr("Page 1")
-		}
-		TabButton {
-			text: qsTr("Page 2")
-		}
-	}*/
 }

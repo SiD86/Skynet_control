@@ -4,6 +4,7 @@
 #include "wirelessmodbus.h"
 #define SERVER_IP_ADDRESS					("111.111.111.111")
 #define SERVER_PORT							(3333)
+
 #define CRC16_POLYNOM						(0xA001)
 
 #define MODBUS_CMD_WRITE_RAM				(0x41)	// Function Code: Write RAM
@@ -11,6 +12,9 @@
 #define MODBUS_CMD_READ_RAM					(0x44)	// Function Code: Read RAM
 #define MODBUS_CMD_READ_EEPROM				(0x46)	// Function Code: Read EEPROM
 #define MODBUS_EXCEPTION					(0x80)	// Function Code: Exception
+
+#define MODBUS_MIN_RESPONSE_LENGTH			(5)
+
 
 
 WirelessModbus::WirelessModbus(QObject* parent) : QObject(parent) {
@@ -56,7 +60,7 @@ bool WirelessModbus::disconnectFromServer(void) {
 	return m_socket.waitForDisconnected(1000);
 }
 
-bool WirelessModbus::readRAM(uint16_t address, uint8_t* buffer, uint8_t bytesCount) {
+bool WirelessModbus::readRAM(uint16_t address, QByteArray& buffer, uint8_t bytesCount) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
@@ -66,56 +70,22 @@ bool WirelessModbus::readRAM(uint16_t address, uint8_t* buffer, uint8_t bytesCou
 
 
 	// Make request
-	uint8_t request[256] = {0};
-	uint8_t request_size = 0;
+	QByteArray request;
+	request.push_back(static_cast<char>(0xFE));
+	request.push_back(static_cast<char>(MODBUS_CMD_READ_RAM));
+	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+	request.push_back(static_cast<char>(bytesCount));
 
-	request[request_size++] = 0xFE;
-	request[request_size++] = MODBUS_CMD_READ_RAM;
-	request[request_size++] = (address & 0xFF00) >> 8;
-	request[request_size++] = (address & 0x00FF) >> 0;
-	request[request_size++] = bytesCount;
+	uint16_t crc = calculateCRC16(request);
+	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
 
-	uint16_t crc = calculateCRC16(request, request_size);
-	request[request_size++] = (crc & 0x00FF) >> 0;
-	request[request_size++] = (crc & 0xFF00) >> 8;
-
-	// Send request
-	m_socket.write(reinterpret_cast<char*>(request), request_size);
-	if (m_socket.waitForBytesWritten(50) == false) {
-		qDebug() << "WirelessModbus: [readRAM] waitForBytesWritten";
-		return false;
-	}
-
-	// Wait response
-	timeoutTimer.start(250);
-	while (m_socket.bytesAvailable() != 3 + bytesCount + 2) {	// Device address + Function code + Bytes count + Data + CRC16
-
-		if (timeoutTimer.isActive() == false) {
-			qDebug() << "WirelessModbus: [readRAM] Receive response timeout. Bytes received: " << m_socket.bytesAvailable();
-			return false;
-		}
-		QGuiApplication::processEvents();
-	}
-
-	// Read response
-	uint8_t response[256] = {0};
-	uint8_t response_size = static_cast<uint8_t>(m_socket.bytesAvailable());
-	m_socket.read(reinterpret_cast<char*>(response), response_size);
-
-	qDebug() << "WirelessModbus: [readRAM] Response received: " << response_size;
-	qDebug() << "WirelessModbus: [readRAM] Response CRC: " << calculateCRC16(response, response_size);
-
-	// Verify response
-	if (calculateCRC16(response, response_size) != 0) {
-		qDebug() << "WirelessModbus: [readRAM] Wrong CRC";
-		return false;
-	}
-
-	memcpy(buffer, &response[3], bytesCount);
-	return true;
+	// Send request and receive response
+	return processModbusTransaction(request, &buffer);
 }
 
-bool WirelessModbus::writeRAM(uint16_t address, uint8_t* data, uint8_t bytesCount) {
+bool WirelessModbus::writeRAM(uint16_t address, const QByteArray& data) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
@@ -124,38 +94,129 @@ bool WirelessModbus::writeRAM(uint16_t address, uint8_t* data, uint8_t bytesCoun
 	}
 
 
-	return true;
+	// Make request
+	QByteArray request;
+	request.push_back(static_cast<char>(0xFE));
+	request.push_back(static_cast<char>(MODBUS_CMD_WRITE_RAM));
+	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+	request.push_back(static_cast<char>(data.size()));
+	for (int i = 0; i < data.size(); ++i) {
+		request.push_back(static_cast<char>(data[i]));
+	}
+
+	uint16_t crc = calculateCRC16(request);
+	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+	// Send request and receive response
+	return processModbusTransaction(request, nullptr);
 }
 
-bool WirelessModbus::readEEPROM(uint16_t address, uint8_t* buffer, uint8_t bytesCount) {
+bool WirelessModbus::readEEPROM(uint16_t address, QByteArray& buffer, uint8_t bytesCount) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [readEEPROM] Wrong socket state";
+		qDebug() << "WirelessModbus: [readRAM] Wrong socket state";
 		return false;
 	}
 
 
-	return true;
+	// Make request
+	QByteArray request;
+	request.push_back(static_cast<char>(0xFE));
+	request.push_back(static_cast<char>(MODBUS_CMD_READ_EEPROM));
+	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+	request.push_back(static_cast<char>(bytesCount));
+
+	uint16_t crc = calculateCRC16(request);
+	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+	// Send request and receive response
+	return processModbusTransaction(request, &buffer);
 }
 
-bool WirelessModbus::writeEEPROM(uint16_t address, uint8_t* data, uint8_t bytesCount) {
+bool WirelessModbus::writeEEPROM(uint16_t address, const QByteArray& data) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [writeEEPROM] Wrong socket state";
+		qDebug() << "WirelessModbus: [writeRAM] Wrong socket state";
 		return false;
 	}
 
 
+	// Make request
+	QByteArray request;
+	request.push_back(static_cast<char>(0xFE));
+	request.push_back(static_cast<char>(MODBUS_CMD_WRITE_EEPROM));
+	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+	request.push_back(static_cast<char>(data.size()));
+	for (int i = 0; i < data.size(); ++i) {
+		request.push_back(static_cast<char>(data[i]));
+	}
 
-	return true;
+	uint16_t crc = calculateCRC16(request);
+	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+	// Send request and receive response
+	return processModbusTransaction(request, nullptr);
 }
 
 
 
 
-uint16_t WirelessModbus::calculateCRC16(const uint8_t* frame, uint32_t size) {
+bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteArray* responseData) {
+
+	// Send request
+	m_socket.write(request);
+	if (m_socket.waitForBytesWritten(50) == false) {
+		qDebug() << "WirelessModbus: [processModbusTransaction] waitForBytesWritten";
+		return false;
+	}
+
+	// Wait response
+	timeoutTimer.start(250);
+	while (m_socket.bytesAvailable() < MODBUS_MIN_RESPONSE_LENGTH) {
+
+		if (timeoutTimer.isActive() == false) {
+			qDebug() << "WirelessModbus: [processModbusTransaction] Receive response timeout. Bytes received: " << m_socket.bytesAvailable();
+			return false;
+		}
+		QGuiApplication::processEvents();
+	}
+	qDebug() << "WirelessModbus: [processModbusTransaction] Response received: " << m_socket.bytesAvailable();
+
+	// Read response
+	QByteArray response = m_socket.readAll();
+
+	// Verify response
+	if (calculateCRC16(response) != 0) {
+		qDebug() << "WirelessModbus: [processModbusTransaction] Wrong CRC";
+		return false;
+	}
+
+	// Check function code or exception
+	if (response[1] & MODBUS_EXCEPTION) {
+		qDebug() << "WirelessModbus: [processModbusTransaction] Exception received: " << response[2];
+		return false;
+	}
+
+	// Copy data from response
+	if (request[1] == MODBUS_CMD_READ_RAM || request[1] == MODBUS_CMD_READ_EEPROM) {
+		*responseData = response.mid(3);
+	}
+	return true;
+}
+
+uint16_t WirelessModbus::calculateCRC16(const QByteArray& frameByteArray) {
+
+	uint8_t size = static_cast<uint8_t>(frameByteArray.size());
+	const uint8_t* frame = reinterpret_cast<const uint8_t*>(frameByteArray.data());
+
 
 	uint16_t crc16 = 0xFFFF;
 	uint16_t data = 0;
