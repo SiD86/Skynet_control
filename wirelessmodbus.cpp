@@ -13,7 +13,7 @@
 #define MODBUS_CMD_READ_EEPROM				(0x46)	// Function Code: Read EEPROM
 #define MODBUS_EXCEPTION					(0x80)	// Function Code: Exception
 
-#define MODBUS_MIN_RESPONSE_LENGTH			(5)
+#define MODBUS_MIN_RESPONSE_LENGTH			(4)
 
 
 
@@ -35,7 +35,7 @@ bool WirelessModbus::connectToServer(void) {
 
 	// Wait connect to server
 	timeoutTimer.start(5000);
-	while (m_socket.state() == QTcpSocket::SocketState::ConnectingState) {
+	while (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
 
 		if (timeoutTimer.isActive() == false) {
 			qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
@@ -189,13 +189,13 @@ bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteAr
 		}
 		QGuiApplication::processEvents();
 	}
-	qDebug() << "WirelessModbus: [processModbusTransaction] Response received: " << m_socket.bytesAvailable();
+	qDebug() << "WirelessModbus: [processModbusTransaction] Frame received: " << m_socket.bytesAvailable();
 
 	// Read response
 	QByteArray response = m_socket.readAll();
 
 	// Verify response
-	if (calculateCRC16(response) != 0) {
+	if (this->calculateCRC16(response) != 0) {
 		qDebug() << "WirelessModbus: [processModbusTransaction] Wrong CRC";
 		return false;
 	}
@@ -210,6 +210,8 @@ bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteAr
 	if (request[1] == MODBUS_CMD_READ_RAM || request[1] == MODBUS_CMD_READ_EEPROM) {
 		*responseData = response.mid(3);
 	}
+
+	qDebug() << "WirelessModbus: [processModbusTransaction] Response received";
 	return true;
 }
 

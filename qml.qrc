@@ -29,6 +29,9 @@
         <file>images/up.png</file>
         <file>images/power_pressed.png</file>
         <file>images/power_released.png</file>
+        <file>images/1.svg</file>
+        <file>AndroidQML/MetroButton.qml</file>
+        <file>images/info.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

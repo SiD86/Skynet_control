@@ -26,4 +26,26 @@ Item {
 		anchors.horizontalCenter: parent.horizontalCenter
 		font.pointSize: 14
 	}
+
+	Image {
+		id: image
+		sourceSize.height: height
+		sourceSize.width: width
+		anchors.bottom: parent.bottom
+		anchors.bottomMargin: 554
+		anchors.right: parent.right
+		anchors.rightMargin: 158
+		anchors.left: parent.left
+		anchors.leftMargin: 5
+		anchors.top: parent.top
+		anchors.topMargin: 5
+		source: "qrc:/images/1.svg"
+		fillMode: Image.PreserveAspectFit
+	}
 }
+
+/*##^## Designer {
+	D{i:3;anchors_height:329;anchors_width:337;anchors_x:5;anchors_y:5}
+}
+ ##^##*/
+

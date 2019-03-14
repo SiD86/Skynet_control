@@ -1,5 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.3
 
 Item {
 	id: root
@@ -35,50 +36,69 @@ Item {
 		verticalAlignment: Text.AlignVCenter
 	}
 
-	Image {
-		id: logoImage
-		height: 355
+	GridLayout {
+		id: gridLayout
 		anchors.top: parent.top
-		anchors.left: parent.left
-		anchors.right: parent.right
-		fillMode: Image.PreserveAspectFit
-		source: "qrc:/images/logo.png"
-	}
-
-	Image {
-		id: powerImage
-		width: 256
-		anchors.bottom: parent.bottom
-		anchors.bottomMargin: 30
-		anchors.left: parent.left
-		anchors.leftMargin: 50
-		anchors.right: parent.right
-		anchors.rightMargin: 50
-		anchors.top: logoImage.bottom
 		anchors.topMargin: 10
-		fillMode: Image.PreserveAspectFit
-		source: "qrc:/images/power_released.png"
+		anchors.bottom: parent.bottom
+		anchors.bottomMargin: 10
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		anchors.left: parent.left
+		anchors.leftMargin: 10
+		rows: 4
+		columns: 2
 
-		MouseArea {
-			anchors.bottomMargin: 50
-			anchors.rightMargin: 50
-			anchors.leftMargin: 50
-			anchors.fill: parent
-			onPressed: {
-				powerImage.source = "qrc:/images/power_pressed.png"
+		Image {
+			clip: true
+			Layout.columnSpan: 2
+			Layout.fillHeight: false
+			Layout.fillWidth: true
+			fillMode: Image.PreserveAspectFit
+			source: "qrc:/images/logo.png"
+		}
+
+		MetroButton {
+			image: "qrc:/images/info.svg"
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			onButtonClicked: {
+				startConnectToServer()
 			}
-			onReleased: {
-				powerImage.source = "qrc:/images/power_released.png"
+		}
+
+		MetroButton {
+			image: "qrc:/images/info.svg"
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			onButtonClicked: {
+				startConnectToServer()
 			}
-			onClicked: {
-				root.startConnectToServer()
+		}
+
+		MetroButton {
+			image: "qrc:/images/info.svg"
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			onButtonClicked: {
+				startConnectToServer()
+			}
+		}
+
+		MetroButton {
+			image: "qrc:/images/info.svg"
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			onButtonClicked: {
+				startConnectToServer()
 			}
 		}
 	}
 }
 
 /*##^## Designer {
-	D{i:4;anchors_width:582;anchors_x:58;anchors_y:5}D{i:3;anchors_height:256;anchors_x:186}
+	D{i:3;anchors_height:374;anchors_width:480;anchors_x:10;anchors_y:360}D{i:4;anchors_width:582;anchors_x:58;anchors_y:5}
+D{i:2;anchors_height:374;anchors_width:480;anchors_x:10;anchors_y:360}
 }
  ##^##*/
 

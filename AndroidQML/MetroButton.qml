@@ -7,11 +7,8 @@ Item {
 	height: 80
 
 	signal buttonClicked
-	signal buttonPressed
-	signal buttonReleased
 
 	property string image: ""
-	property string backgroundColor: "#00000000"
 
 	MouseArea {
 		z: 1
@@ -24,11 +21,9 @@ Item {
 		onPressedChanged: {
 
 			if (pressed) {
-				frameRectangle.border.color = "#00FFFF"
-				root.buttonPressed()
+				frameRectangle.color = "#4D95D1"
 			} else {
-				frameRectangle.border.color = "#AAAAAA"
-				root.buttonReleased()
+				frameRectangle.color = "#2582D3"
 			}
 		}
 	}
@@ -36,16 +31,17 @@ Item {
 	Rectangle {
 		id: frameRectangle
 		anchors.fill: parent
-		color: backgroundColor
-		border.color: "#AAAAAA"
+		color: "#2582D3"
+		border.width: 0
 	}
 
 	Image {
-		anchors.fill: parent
-		anchors.rightMargin: 3
-		anchors.leftMargin: 3
-		anchors.bottomMargin: 3
-		anchors.topMargin: 3
+		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.verticalCenter: parent.verticalCenter
+		sourceSize.width: width
+		sourceSize.height: height
 		source: image
+		width: (root.width > root.height) ? root.height : root.width
+		height: width
 	}
 }
