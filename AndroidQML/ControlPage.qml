@@ -1,24 +1,137 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.3
 
 Item {
+
 	id: root
 	width: 500
 	height: 888
 	clip: true
 
+	GridLayout {
+		id: gridErrors
+		width: root.width / 2 - 20
+		height: width
+		anchors.left: parent.left
+		anchors.leftMargin: 10
+		anchors.top: parent.top
+		anchors.topMargin: 10
+		columnSpacing: 10
+		rowSpacing: 10
+		rows: 4
+		columns: 2
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+	}
+
+	GridLayout {
+		id: gridModulesStatus
+		width: root.width / 2 - 20
+		height: width
+		anchors.top: parent.top
+		anchors.topMargin: 10
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		columnSpacing: 10
+		rowSpacing: 10
+		rows: 4
+		columns: 2
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+
+		StatusLabel {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+		}
+	}
+
 	Item {
-		y: 220
-		width: 255
-		height: 255
+		id: joystickItem
+		y: 628
+		width: 300
+		height: 300
+		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.bottom: parent.bottom
 		anchors.bottomMargin: 20
-		anchors.horizontalCenter: parent.horizontalCenter
 
 		ImageButton {
+			width: parent.width / 3 - 10
+			height: parent.width / 3 - 10
 			anchors.horizontalCenter: parent.horizontalCenter
 			anchors.top: parent.top
-			image: "qrc:/images/arrowUp.png"
+			imageSrc: "qrc:/images/arrowUp.svg"
 			onButtonPressed: {
 				CppCore.sendDirectMoveCommand()
 			}
@@ -28,9 +141,11 @@ Item {
 		}
 
 		ImageButton {
+			width: parent.width / 3 - 10
+			height: parent.width / 3 - 10
 			anchors.verticalCenter: parent.verticalCenter
 			anchors.left: parent.left
-			image: "qrc:/images/arrowLeft.png"
+			imageSrc: "qrc:/images/arrowLeft.svg"
 			onButtonPressed: {
 				CppCore.sendRotateLeftCommand()
 			}
@@ -40,9 +155,11 @@ Item {
 		}
 
 		ImageButton {
+			width: parent.width / 3 - 10
+			height: parent.width / 3 - 10
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
-			image: "qrc:/images/arrowRight.png"
+			imageSrc: "qrc:/images/arrowRight.svg"
 			onButtonPressed: {
 				CppCore.sendRotateRightCommand()
 			}
@@ -52,9 +169,11 @@ Item {
 		}
 
 		ImageButton {
+			width: parent.width / 3 - 10
+			height: parent.width / 3 - 10
 			anchors.bottom: parent.bottom
 			anchors.horizontalCenter: parent.horizontalCenter
-			image: "qrc:/images/arrowDown.png"
+			imageSrc: "qrc:/images/arrowDown.svg"
 			onButtonPressed: {
 				CppCore.sendReverseMoveCommand()
 			}
@@ -62,36 +181,37 @@ Item {
 				CppCore.sendStopMoveCommand()
 			}
 		}
-	}
-
-	Item {
-		x: 192
-		width: 255
-		height: 80
-		anchors.horizontalCenter: parent.horizontalCenter
-		anchors.top: parent.top
-		anchors.topMargin: 20
 
 		ImageButton {
-			width: 125
-			height: 80
-			anchors.left: parent.left
-			anchors.top: parent.top
-			image: "qrc:/images/up.png"
-			onButtonClicked: {
-				CppCore.sendGetUpCommand()
-			}
-		}
 
-		ImageButton {
-			width: 125
-			height: 80
-			anchors.top: parent.top
-			anchors.right: parent.right
-			image: "qrc:/images/down.png"
+			property bool isDownSequenceSelected: false
+
+			width: parent.width / 3 - 10
+			height: parent.width / 3 - 10
+			anchors.horizontalCenter: parent.horizontalCenter
+			anchors.verticalCenter: parent.verticalCenter
+			imageSrc: "qrc:/images/GetUp.svg"
 			onButtonClicked: {
-				CppCore.sendGetDownCommand()
+				if (isDownSequenceSelected) {
+
+					if (CppCore.sendGetUpCommand()) {
+						isDownSequenceSelected = !isDownSequenceSelected
+						imageSrc: "qrc:/images/GetDown.svg"
+					}
+				} else {
+
+					if (CppCore.sendGetDownCommand()) {
+						isDownSequenceSelected = !isDownSequenceSelected
+						imageSrc: "qrc:/images/GetUp.svg"
+					}
+				}
 			}
 		}
 	}
 }
+
+/*##^## Designer {
+	D{i:26;anchors_width:226;anchors_x:5;anchors_y:5}
+}
+ ##^##*/
+

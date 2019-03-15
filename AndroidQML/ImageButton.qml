@@ -1,17 +1,20 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
+import QtGraphicalEffects 1.0
 
 Item {
-	id: root
-	width: 80
-	height: 80
 
 	signal buttonClicked
 	signal buttonPressed
 	signal buttonReleased
 
-	property string image: ""
+	property string imageSrc: ""
+	property string imageColor: "#FFFFFF"
 	property string backgroundColor: "#00000000"
+
+	id: root
+	width: 80
+	height: 80
 
 	MouseArea {
 		z: 1
@@ -38,14 +41,26 @@ Item {
 		anchors.fill: parent
 		color: backgroundColor
 		border.color: "#AAAAAA"
+		border.width: 2
 	}
 
 	Image {
-		anchors.fill: parent
-		anchors.rightMargin: 3
-		anchors.leftMargin: 3
-		anchors.bottomMargin: 3
-		anchors.topMargin: 3
-		source: image
+		id: buttonImage
+		visible: false
+		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.verticalCenter: parent.verticalCenter
+		width: (root.width > root.height) ? (root.height * 0.75) : (root.width * 0.75)
+		height: (root.width > root.height) ? (root.height * 0.75) : (root.width * 0.75)
+		sourceSize.width: width
+		sourceSize.height: height
+		source: imageSrc
+	}
+
+	ColorOverlay {
+		anchors.fill: buttonImage
+		smooth: true
+		antialiasing: true
+		source: buttonImage
+		color: imageColor
 	}
 }

@@ -174,13 +174,13 @@ bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteAr
 
 	// Send request
 	m_socket.write(request);
-	if (m_socket.waitForBytesWritten(50) == false) {
+	if (m_socket.waitForBytesWritten(20) == false) {
 		qDebug() << "WirelessModbus: [processModbusTransaction] waitForBytesWritten";
 		return false;
 	}
 
 	// Wait response
-	timeoutTimer.start(250);
+	timeoutTimer.start(150);
 	while (m_socket.bytesAvailable() < MODBUS_MIN_RESPONSE_LENGTH) {
 
 		if (timeoutTimer.isActive() == false) {

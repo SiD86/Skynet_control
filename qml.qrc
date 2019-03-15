@@ -2,9 +2,6 @@
     <qresource prefix="/">
         <file>images/logo.png</file>
         <file>qtquickcontrols2.conf</file>
-        <file>images/control_64x64.png</file>
-        <file>images/info_64x64.png</file>
-        <file>images/settings_64x64.png</file>
         <file>images/hexapod.png</file>
         <file>images/scanner.png</file>
         <file>AndroidQML/ConnectionPage.qml</file>
@@ -21,17 +18,17 @@
         <file>QML/WidgetHexapod.qml</file>
         <file>QML/WidgetModulesStatus.qml</file>
         <file>QML/WidgetSystemStatus.qml</file>
-        <file>images/arrowDown.png</file>
-        <file>images/arrowLeft.png</file>
-        <file>images/arrowRight.png</file>
-        <file>images/arrowUp.png</file>
-        <file>images/down.png</file>
-        <file>images/up.png</file>
-        <file>images/power_pressed.png</file>
-        <file>images/power_released.png</file>
-        <file>images/1.svg</file>
         <file>AndroidQML/MetroButton.qml</file>
         <file>images/info.svg</file>
+        <file>images/control.svg</file>
+        <file>images/settings.svg</file>
+        <file>images/arrowDown.svg</file>
+        <file>images/arrowLeft.svg</file>
+        <file>images/arrowRight.svg</file>
+        <file>images/arrowUp.svg</file>
+        <file>images/GetDown.svg</file>
+        <file>images/GetUp.svg</file>
+        <file>AndroidQML/StatusLabel.qml</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

@@ -3,10 +3,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 Item {
-	id: root
-	width: 500
-	height: 888
-	clip: true
 
 	signal startConnectToServer
 
@@ -17,6 +13,11 @@ Item {
 	function hideErrorMessage() {
 		errorMessageLabel.visible = false
 	}
+
+	id: root
+	width: 500
+	height: 888
+	clip: true
 
 	Label {
 		id: errorMessageLabel
@@ -38,28 +39,37 @@ Item {
 
 	GridLayout {
 		id: gridLayout
-		anchors.top: parent.top
-		anchors.topMargin: 10
-		anchors.bottom: parent.bottom
-		anchors.bottomMargin: 10
-		anchors.right: parent.right
+		columnSpacing: 10
+		rowSpacing: 10
 		anchors.rightMargin: 10
-		anchors.left: parent.left
 		anchors.leftMargin: 10
-		rows: 4
+		anchors.bottomMargin: 10
+		anchors.topMargin: 10
+		anchors.fill: parent
+		rows: 3
 		columns: 2
 
 		Image {
 			clip: true
-			Layout.columnSpan: 2
-			Layout.fillHeight: false
+			width: gridLayout.width
+			height: gridLayout.width * (sourceSize.height / sourceSize.width)
+
+			Layout.fillHeight: true
 			Layout.fillWidth: true
+			Layout.maximumWidth: width
+			Layout.maximumHeight: height
+			Layout.minimumWidth: width
+			Layout.minimumHeight: height
+			Layout.columnSpan: 2
+
+			sourceSize.width: 525
+			sourceSize.height: 370
 			fillMode: Image.PreserveAspectFit
 			source: "qrc:/images/logo.png"
 		}
 
 		MetroButton {
-			image: "qrc:/images/info.svg"
+			imageSrc: "qrc:/images/control.svg"
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
@@ -68,37 +78,33 @@ Item {
 		}
 
 		MetroButton {
-			image: "qrc:/images/info.svg"
+			imageSrc: "qrc:/images/info.svg"
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
-				startConnectToServer()
+
+				//startConnectToServer()
 			}
 		}
 
 		MetroButton {
-			image: "qrc:/images/info.svg"
+			imageSrc: "qrc:/images/settings.svg"
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
-				startConnectToServer()
+
+				//startConnectToServer()
 			}
 		}
 
 		MetroButton {
-			image: "qrc:/images/info.svg"
+			imageSrc: "qrc:/images/info.svg"
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
-				startConnectToServer()
+
+				//startConnectToServer()
 			}
 		}
 	}
 }
-
-/*##^## Designer {
-	D{i:3;anchors_height:374;anchors_width:480;anchors_x:10;anchors_y:360}D{i:4;anchors_width:582;anchors_x:58;anchors_y:5}
-D{i:2;anchors_height:374;anchors_width:480;anchors_x:10;anchors_y:360}
-}
- ##^##*/
-
