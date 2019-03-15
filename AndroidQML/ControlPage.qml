@@ -9,114 +9,6 @@ Item {
 	height: 888
 	clip: true
 
-	GridLayout {
-		id: gridErrors
-		width: root.width / 2 - 20
-		height: width
-		anchors.left: parent.left
-		anchors.leftMargin: 10
-		anchors.top: parent.top
-		anchors.topMargin: 10
-		columnSpacing: 10
-		rowSpacing: 10
-		rows: 4
-		columns: 2
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillWidth: true
-			Layout.fillHeight: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-	}
-
-	GridLayout {
-		id: gridModulesStatus
-		width: root.width / 2 - 20
-		height: width
-		anchors.top: parent.top
-		anchors.topMargin: 10
-		anchors.right: parent.right
-		anchors.rightMargin: 10
-		columnSpacing: 10
-		rowSpacing: 10
-		rows: 4
-		columns: 2
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-
-		StatusLabel {
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-		}
-	}
-
 	Item {
 		id: joystickItem
 		y: 628
@@ -127,8 +19,8 @@ Item {
 		anchors.bottomMargin: 20
 
 		ImageButton {
-			width: parent.width / 3 - 10
-			height: parent.width / 3 - 10
+			width: 90
+			height: 90
 			anchors.horizontalCenter: parent.horizontalCenter
 			anchors.top: parent.top
 			imageSrc: "qrc:/images/arrowUp.svg"
@@ -141,8 +33,8 @@ Item {
 		}
 
 		ImageButton {
-			width: parent.width / 3 - 10
-			height: parent.width / 3 - 10
+			width: 90
+			height: 90
 			anchors.verticalCenter: parent.verticalCenter
 			anchors.left: parent.left
 			imageSrc: "qrc:/images/arrowLeft.svg"
@@ -155,8 +47,8 @@ Item {
 		}
 
 		ImageButton {
-			width: parent.width / 3 - 10
-			height: parent.width / 3 - 10
+			width: 90
+			height: 90
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
 			imageSrc: "qrc:/images/arrowRight.svg"
@@ -169,8 +61,8 @@ Item {
 		}
 
 		ImageButton {
-			width: parent.width / 3 - 10
-			height: parent.width / 3 - 10
+			width: 90
+			height: 90
 			anchors.bottom: parent.bottom
 			anchors.horizontalCenter: parent.horizontalCenter
 			imageSrc: "qrc:/images/arrowDown.svg"
@@ -186,8 +78,8 @@ Item {
 
 			property bool isDownSequenceSelected: false
 
-			width: parent.width / 3 - 10
-			height: parent.width / 3 - 10
+			width: 90
+			height: 90
 			anchors.horizontalCenter: parent.horizontalCenter
 			anchors.verticalCenter: parent.verticalCenter
 			imageSrc: "qrc:/images/GetUp.svg"
