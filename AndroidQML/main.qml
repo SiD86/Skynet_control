@@ -11,24 +11,25 @@ ApplicationWindow {
 		id: swipeView
 		anchors.fill: parent
 		currentIndex: 0
+		clip: true
 
 		//interactive: false
 		StartPage {
 			id: startPage
 			onStartConnectToServer: {
 				swipeView.currentIndex = 1
-				if (CppCore.connectToServer()) {
-					swipeView.currentIndex = 2
-				} else {
-					swipeView.currentIndex = 0
-					startPage.showErrorMessage(
-								qsTr("Ошибка при подключении к устройству"))
-				}
+				connectionPage.startConnection()
 			}
 		}
 
 		ConnectionPage {
 			id: connectionPage
+			onGoToStartPage: {
+				swipeView.currentIndex = 0
+			}
+			onGoToControlPage: {
+				swipeView.currentIndex = 2
+			}
 		}
 
 		ControlPage {

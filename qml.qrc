@@ -29,6 +29,7 @@
         <file>images/GetDown.svg</file>
         <file>images/GetUp.svg</file>
         <file>AndroidQML/StatusLabel.qml</file>
+        <file>images/Error.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>
