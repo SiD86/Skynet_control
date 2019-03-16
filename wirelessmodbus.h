@@ -14,6 +14,8 @@
 #define		SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT		(0x06)
 #define		SCR_CMD_SELECT_SEQUENCE_NONE				(0x90)
 
+#define ERROR_STATUS_ADDRESS							(0x0000)
+
 
 class WirelessModbus : public QObject {
 

@@ -53,7 +53,6 @@ bool WirelessModbus::disconnectFromServer(void) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [disconnectFromServer] Wrong socket state";
 		return true;
 	}
 
@@ -171,6 +170,9 @@ bool WirelessModbus::writeEEPROM(uint16_t address, const QByteArray& data) {
 
 
 bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteArray* responseData) {
+
+	// Clear socket
+	m_socket.readAll();
 
 	// Send request
 	m_socket.write(request);

@@ -11,8 +11,8 @@ ApplicationWindow {
 		id: swipeView
 		anchors.fill: parent
 		currentIndex: 0
-		interactive: false
 
+		//interactive: false
 		StartPage {
 			id: startPage
 			onStartConnectToServer: {

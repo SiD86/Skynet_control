@@ -13,7 +13,7 @@ Label {
 	clip: true
 	color: (root.isActive == true) ? activeColor : deactiveColor
 	text: "TEXT"
-	font.pointSize: 8 * (root.height / 55)
+	font.pointSize: 10
 	verticalAlignment: Text.AlignVCenter
 	horizontalAlignment: Text.AlignHCenter
 	background: Rectangle {

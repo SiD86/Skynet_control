@@ -14,13 +14,14 @@ protected:
 	QTimer m_timer;
 
 signals:
-	void systemStatusUpdated(QVariant systemStatus);
+	void systemStatusUpdated(QVariant newSystemStatus);
 
 public slots:
-	void timerHandler();
+	void statusUpdateTimer();
 
 public:
 	explicit Core(QObject *parent = nullptr);
+	virtual ~Core();
 	Q_INVOKABLE bool connectToServer();
 	Q_INVOKABLE bool sendGetUpCommand();
 	Q_INVOKABLE bool sendGetDownCommand();
