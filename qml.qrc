@@ -9,15 +9,6 @@
         <file>AndroidQML/ImageButton.qml</file>
         <file>AndroidQML/main.qml</file>
         <file>AndroidQML/StartPage.qml</file>
-        <file>QML/ConnectionPage.qml</file>
-        <file>QML/ControlPage.qml</file>
-        <file>QML/ImageButton.qml</file>
-        <file>QML/main.qml</file>
-        <file>QML/MyControlStatusLabel.qml</file>
-        <file>QML/StartPage.qml</file>
-        <file>QML/WidgetHexapod.qml</file>
-        <file>QML/WidgetModulesStatus.qml</file>
-        <file>QML/WidgetSystemStatus.qml</file>
         <file>AndroidQML/MetroButton.qml</file>
         <file>images/info.svg</file>
         <file>images/control.svg</file>
@@ -30,6 +21,8 @@
         <file>images/GetUp.svg</file>
         <file>AndroidQML/StatusLabel.qml</file>
         <file>images/Error.svg</file>
+        <file>images/Minus.svg</file>
+        <file>images/Plus.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

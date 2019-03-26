@@ -23,6 +23,8 @@ public:
 	explicit Core(QObject *parent = nullptr);
 	virtual ~Core();
 	Q_INVOKABLE bool connectToServer();
+	Q_INVOKABLE bool sendIncreaseHeightCommand();
+	Q_INVOKABLE bool sendDecreaseHeightCommand();
 	Q_INVOKABLE bool sendGetUpCommand();
 	Q_INVOKABLE bool sendGetDownCommand();
 	Q_INVOKABLE bool sendDirectMoveCommand();

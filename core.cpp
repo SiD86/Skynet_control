@@ -33,6 +33,22 @@ bool Core::connectToServer() {
 	return false;
 }
 
+bool Core::sendIncreaseHeightCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_INCREASE_HEIGHT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
+bool Core::sendDecreaseHeightCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_DECREASE_HEIGHT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
 bool Core::sendGetUpCommand() {
 
 	QByteArray data;

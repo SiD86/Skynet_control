@@ -84,7 +84,7 @@ Item {
 
 		ImageButton {
 
-			property bool isDownSequenceSelected: false
+			property bool isDownSequenceSelected: true
 
 			width: joystickItem.width / 3 - 10
 			height: width
@@ -107,9 +107,39 @@ Item {
 				}
 			}
 		}
+
+		ImageButton {
+			y: 3
+			width: 87
+			height: 87
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: 0
+			anchors.left: parent.left
+			anchors.leftMargin: 0
+			imageSrc: "qrc:/images/Plus.svg"
+			onButtonClicked: {
+				CppCore.sendIncreaseHeightCommand()
+			}
+		}
+
+		ImageButton {
+			x: 6
+			y: 2
+			width: 87
+			height: 87
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: 0
+			anchors.right: parent.right
+			anchors.rightMargin: 0
+			imageSrc: "qrc:/images/Minus.svg"
+			onButtonClicked: {
+				CppCore.sendIncreaseHeightCommand()
+			}
+		}
 	}
 
-	GridLayout {
+
+	/*GridLayout {
 		height: 232
 		columnSpacing: 4
 		rowSpacing: 4
@@ -193,9 +223,10 @@ Item {
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000001
 		}
-	}
+	}*/
 
-	GridLayout {
+
+	/*GridLayout {
 		height: 232
 		rowSpacing: 4
 		columnSpacing: 4
@@ -277,11 +308,11 @@ Item {
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00010000
 		}
-	}
+	}*/
 }
 
 /*##^## Designer {
-	D{i:7;anchors_width:490;anchors_x:5;anchors_y:5}
+	D{i:7;anchors_width:490;anchors_x:5;anchors_y:5}D{i:29;anchors_x:6}D{i:30;anchors_height:87;anchors_x:6}
 }
  ##^##*/
 
