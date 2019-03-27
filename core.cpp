@@ -33,22 +33,6 @@ bool Core::connectToServer() {
 	return false;
 }
 
-bool Core::sendIncreaseHeightCommand() {
-
-	QByteArray data;
-	data.push_back(static_cast<char>(SCR_CMD_INCREASE_HEIGHT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
-}
-
-bool Core::sendDecreaseHeightCommand() {
-
-	QByteArray data;
-	data.push_back(static_cast<char>(SCR_CMD_DECREASE_HEIGHT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
-}
-
 bool Core::sendGetUpCommand() {
 
 	QByteArray data;
@@ -97,6 +81,14 @@ bool Core::sendRotateRightCommand() {
 	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
 }
 
+bool Core::sendUpdateHeightCommand() {
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_UPDATE_HEIGHT));
+
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}
+
 bool Core::sendStopMoveCommand() {
 
 	QByteArray data;
@@ -105,3 +97,21 @@ bool Core::sendStopMoveCommand() {
 	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
 }
 
+bool Core::sendSetHeightCommand(QVariant height) {
+
+	uint32_t height32 = static_cast<uint32_t>(height.toInt());
+
+	QByteArray data;
+	data.push_back(static_cast<char>((height32 >> 24) & 0xFF));
+	data.push_back(static_cast<char>((height32 >> 16) & 0xFF));
+	data.push_back(static_cast<char>((height32 >>  8) & 0xFF));
+	data.push_back(static_cast<char>((height32 >>  0) & 0xFF));
+
+	if (m_wirelessModbus.writeRAM(SCR_ARGUMENT_ADDRESS, data) == false) {
+		return false;
+	}
+	data.clear();
+
+	data.push_back(static_cast<char>(SCR_CMD_SET_HEXAPOD_HEIGHT));
+	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+}

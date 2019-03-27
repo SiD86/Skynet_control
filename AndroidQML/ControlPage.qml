@@ -22,7 +22,8 @@ Item {
 		id: joystickItem
 		width: (root.width < 290) ? root.width : 290
 		height: width
-		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.right: parent.right
+		anchors.rightMargin: 20
 		anchors.bottom: parent.bottom
 		anchors.bottomMargin: 20
 
@@ -71,7 +72,7 @@ Item {
 		ImageButton {
 			width: joystickItem.width / 3 - 10
 			height: width
-			anchors.bottom: parent.bottom
+			anchors.verticalCenter: parent.verticalCenter
 			anchors.horizontalCenter: parent.horizontalCenter
 			imageSrc: "qrc:/images/arrowDown.svg"
 			onButtonPressed: {
@@ -83,28 +84,14 @@ Item {
 		}
 
 		ImageButton {
-
-			property bool isDownSequenceSelected: true
-
 			width: joystickItem.width / 3 - 10
 			height: width
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: 0
 			anchors.horizontalCenter: parent.horizontalCenter
-			anchors.verticalCenter: parent.verticalCenter
-			imageSrc: "qrc:/images/GetUp.svg"
+			imageSrc: "qrc:/images/Update.svg"
 			onButtonClicked: {
-				if (isDownSequenceSelected) {
-
-					if (CppCore.sendGetUpCommand()) {
-						isDownSequenceSelected = !isDownSequenceSelected
-						imageSrc = "qrc:/images/GetDown.svg"
-					}
-				} else {
-
-					if (CppCore.sendGetDownCommand()) {
-						isDownSequenceSelected = !isDownSequenceSelected
-						imageSrc = "qrc:/images/GetUp.svg"
-					}
-				}
+				CppCore.sendUpdateHeightCommand(hexapodHeightSlider.value)
 			}
 		}
 
@@ -116,9 +103,9 @@ Item {
 			anchors.bottomMargin: 0
 			anchors.left: parent.left
 			anchors.leftMargin: 0
-			imageSrc: "qrc:/images/Plus.svg"
+			imageSrc: "qrc:/images/GetUp.svg"
 			onButtonClicked: {
-				CppCore.sendIncreaseHeightCommand()
+				CppCore.sendGetUpCommand()
 			}
 		}
 
@@ -131,11 +118,27 @@ Item {
 			anchors.bottomMargin: 0
 			anchors.right: parent.right
 			anchors.rightMargin: 0
-			imageSrc: "qrc:/images/Minus.svg"
+			imageSrc: "qrc:/images/GetDown.svg"
 			onButtonClicked: {
-				CppCore.sendIncreaseHeightCommand()
+				CppCore.sendGetDownCommand()
 			}
 		}
+	}
+
+	Slider {
+		id: hexapodHeightSlider
+		y: 578
+		width: 38
+		height: 290
+		from: 85
+		to: 185
+		stepSize: 5
+		anchors.left: parent.left
+		anchors.leftMargin: 20
+		anchors.bottom: parent.bottom
+		anchors.bottomMargin: 20
+		orientation: Qt.Vertical
+		value: 85
 	}
 
 
@@ -311,8 +314,10 @@ Item {
 	}*/
 }
 
+
+
+
 /*##^## Designer {
-	D{i:7;anchors_width:490;anchors_x:5;anchors_y:5}D{i:29;anchors_x:6}D{i:30;anchors_height:87;anchors_x:6}
+	D{i:7;anchors_width:490;anchors_x:5;anchors_y:5}D{i:10;anchors_x:5}
 }
  ##^##*/
-

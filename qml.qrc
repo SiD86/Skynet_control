@@ -23,6 +23,7 @@
         <file>images/Error.svg</file>
         <file>images/Minus.svg</file>
         <file>images/Plus.svg</file>
+        <file>images/Update.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>
