@@ -20,15 +20,15 @@ Item {
 
 	Item {
 		id: joystickItem
-		width: (root.width < 290) ? root.width : 290
-		height: width
-		anchors.right: parent.right
-		anchors.rightMargin: 20
+		y: 646
+		width: (root.width < 260) ? root.width : 260
+		height: 170
+		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.bottom: parent.bottom
 		anchors.bottomMargin: 20
 
 		ImageButton {
-			width: joystickItem.width / 3 - 10
+			width: 80
 			height: width
 			anchors.horizontalCenter: parent.horizontalCenter
 			anchors.top: parent.top
@@ -42,9 +42,9 @@ Item {
 		}
 
 		ImageButton {
-			width: joystickItem.width / 3 - 10
+			width: 80
 			height: width
-			anchors.verticalCenter: parent.verticalCenter
+			anchors.bottom: parent.bottom
 			anchors.left: parent.left
 			imageSrc: "qrc:/images/arrowLeft.svg"
 			onButtonPressed: {
@@ -56,10 +56,10 @@ Item {
 		}
 
 		ImageButton {
-			width: joystickItem.width / 3 - 10
+			width: 80
 			height: width
+			anchors.bottom: parent.bottom
 			anchors.right: parent.right
-			anchors.verticalCenter: parent.verticalCenter
 			imageSrc: "qrc:/images/arrowRight.svg"
 			onButtonPressed: {
 				CppCore.sendRotateRightCommand()
@@ -70,9 +70,10 @@ Item {
 		}
 
 		ImageButton {
-			width: joystickItem.width / 3 - 10
+			width: 80
 			height: width
-			anchors.verticalCenter: parent.verticalCenter
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: 0
 			anchors.horizontalCenter: parent.horizontalCenter
 			imageSrc: "qrc:/images/arrowDown.svg"
 			onButtonPressed: {
@@ -82,83 +83,210 @@ Item {
 				CppCore.sendStopMoveCommand()
 			}
 		}
+	}
+
+	Item {
+		height: 80
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		anchors.left: parent.left
+		anchors.leftMargin: 10
+		anchors.top: parent.top
+		anchors.topMargin: 290
 
 		ImageButton {
-			width: joystickItem.width / 3 - 10
-			height: width
+			id: updateHeightButton
+			width: height
+			anchors.top: parent.top
 			anchors.bottom: parent.bottom
-			anchors.bottomMargin: 0
-			anchors.horizontalCenter: parent.horizontalCenter
+			anchors.right: parent.right
 			imageSrc: "qrc:/images/Update.svg"
 			onButtonClicked: {
-				CppCore.sendUpdateHeightCommand(hexapodHeightSlider.value)
+				CppCore.sendUpdateHeightCommand(heightSpinBox.value)
 			}
 		}
 
-		ImageButton {
-			y: 3
-			width: 87
-			height: 87
+		SpinBox {
+			id: heightSpinBox
+			font.pointSize: 13
+			anchors.top: parent.top
 			anchors.bottom: parent.bottom
-			anchors.bottomMargin: 0
+			anchors.right: updateHeightButton.left
+			anchors.rightMargin: 5
 			anchors.left: parent.left
-			anchors.leftMargin: 0
-			imageSrc: "qrc:/images/GetUp.svg"
-			onButtonClicked: {
-				CppCore.sendGetUpCommand()
-			}
+
+			editable: false
+			stepSize: 5
+			from: 85
+			value: 85
+			to: 185
 		}
+	}
+
+	Item {
+		id: upDownControls
+		x: 320
+		width: 170
+		height: 80
+		anchors.top: parent.top
+		anchors.topMargin: 200
+		anchors.right: parent.right
+		anchors.rightMargin: 10
 
 		ImageButton {
-			x: 6
-			y: 2
-			width: 87
-			height: 87
+			anchors.top: parent.top
 			anchors.bottom: parent.bottom
-			anchors.bottomMargin: 0
-			anchors.right: parent.right
-			anchors.rightMargin: 0
+			anchors.left: parent.left
+			anchors.right: parent.horizontalCenter
+			anchors.rightMargin: 5
 			imageSrc: "qrc:/images/GetDown.svg"
 			onButtonClicked: {
 				CppCore.sendGetDownCommand()
 			}
 		}
+
+		ImageButton {
+			anchors.top: parent.top
+			anchors.bottom: parent.bottom
+			anchors.left: parent.horizontalCenter
+			anchors.leftMargin: 5
+			anchors.right: parent.right
+			imageSrc: "qrc:/images/GetUp.svg"
+			onButtonClicked: {
+				CppCore.sendGetUpCommand()
+			}
+		}
 	}
 
-	Slider {
-		id: hexapodHeightSlider
-		y: 578
-		width: 38
-		height: 290
-		from: 85
-		to: 185
-		stepSize: 5
+	Item {
+		height: 80
+		anchors.right: parent.right
+		anchors.rightMargin: 190
+		anchors.top: parent.top
+		anchors.topMargin: 200
 		anchors.left: parent.left
-		anchors.leftMargin: 20
-		anchors.bottom: parent.bottom
-		anchors.bottomMargin: 20
-		orientation: Qt.Vertical
-		value: 85
+		anchors.leftMargin: 10
+
+		Label {
+			width: 45
+			height: 22
+			anchors.left: parent.left
+			anchors.top: parent.top
+			font.pointSize: 12
+			text: qsTr("BATT:")
+			horizontalAlignment: Text.AlignRight
+			verticalAlignment: Text.AlignVCenter
+		}
+
+		Label {
+			width: 45
+			height: 22
+			anchors.verticalCenter: parent.verticalCenter
+			anchors.left: parent.left
+			font.pointSize: 12
+			text: qsTr("WIFI:")
+			horizontalAlignment: Text.AlignRight
+			verticalAlignment: Text.AlignVCenter
+		}
+
+		Label {
+			width: 45
+			height: 22
+			anchors.left: parent.left
+			anchors.bottom: parent.bottom
+			font.pointSize: 12
+			text: qsTr("SENS:")
+			horizontalAlignment: Text.AlignRight
+			verticalAlignment: Text.AlignVCenter
+		}
+
+		ProgressBar {
+			width: 165
+			height: 22
+			anchors.top: parent.top
+			anchors.right: parent.right
+			anchors.rightMargin: 55
+			anchors.left: parent.left
+			anchors.leftMargin: 50
+			value: 4.2
+			to: 8.4
+		}
+
+		ProgressBar {
+			width: 165
+			height: 22
+			anchors.verticalCenter: parent.verticalCenter
+			anchors.right: parent.right
+			anchors.rightMargin: 55
+			anchors.left: parent.left
+			anchors.leftMargin: 50
+			value: 2.75
+			to: 5.5
+		}
+
+		ProgressBar {
+			width: 165
+			height: 22
+			anchors.bottom: parent.bottom
+			anchors.right: parent.right
+			anchors.rightMargin: 55
+			anchors.left: parent.left
+			anchors.leftMargin: 50
+			value: 2.75
+			to: 5.5
+		}
+
+		Label {
+			width: 50
+			height: 22
+			anchors.top: parent.top
+			anchors.right: parent.right
+			font.pointSize: 12
+			text: qsTr("8.4 V")
+			verticalAlignment: Text.AlignVCenter
+			horizontalAlignment: Text.AlignHCenter
+		}
+
+		Label {
+			width: 50
+			height: 22
+			anchors.right: parent.right
+			anchors.verticalCenter: parent.verticalCenter
+			font.pointSize: 12
+			text: qsTr("5.0 V")
+			verticalAlignment: Text.AlignVCenter
+			horizontalAlignment: Text.AlignHCenter
+		}
+
+		Label {
+			width: 50
+			height: 22
+			anchors.right: parent.right
+			anchors.bottom: parent.bottom
+			font.pointSize: 12
+			text: qsTr("5.0 V")
+			verticalAlignment: Text.AlignVCenter
+			horizontalAlignment: Text.AlignHCenter
+		}
 	}
 
-
-	/*GridLayout {
-		height: 232
+	GridLayout {
+		height: 175
 		columnSpacing: 4
 		rowSpacing: 4
 		anchors.right: parent.horizontalCenter
-		anchors.rightMargin: 5
+		anchors.rightMargin: 2
 		anchors.top: parent.top
-		anchors.topMargin: 5
+		anchors.topMargin: 10
 		anchors.left: parent.left
-		anchors.leftMargin: 5
+		anchors.leftMargin: 10
 		rows: 4
 		columns: 2
 
 		StatusLabel {
 			text: "Reserved"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000080
@@ -166,8 +294,8 @@ Item {
 
 		StatusLabel {
 			text: "Memory\nerror"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000040
@@ -175,8 +303,8 @@ Item {
 
 		StatusLabel {
 			text: "I2C bus\nerror"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000020
@@ -184,8 +312,8 @@ Item {
 
 		StatusLabel {
 			text: "Configuration\nerror"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000010
@@ -193,8 +321,8 @@ Item {
 
 		StatusLabel {
 			text: "Math\nerror"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000008
@@ -202,8 +330,8 @@ Item {
 
 		StatusLabel {
 			text: "Internal\nerror"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000004
@@ -211,8 +339,8 @@ Item {
 
 		StatusLabel {
 			text: "Sync\nerror"
-			Layout.maximumHeight: 55
-			Layout.minimumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000002
@@ -220,32 +348,31 @@ Item {
 
 		StatusLabel {
 			text: "Emergency\nmode"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000001
 		}
-	}*/
+	}
 
-
-	/*GridLayout {
-		height: 232
+	GridLayout {
+		height: 175
 		rowSpacing: 4
 		columnSpacing: 4
 		anchors.left: parent.horizontalCenter
-		anchors.leftMargin: 5
+		anchors.leftMargin: 2
 		anchors.top: parent.top
-		anchors.topMargin: 5
+		anchors.topMargin: 10
 		anchors.right: parent.right
-		anchors.rightMargin: 5
+		anchors.rightMargin: 10
 		rows: 4
 		columns: 2
 
 		StatusLabel {
 			text: "Reserved"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00800000
@@ -253,8 +380,8 @@ Item {
 
 		StatusLabel {
 			text: "OLED GL"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00400000
@@ -262,16 +389,17 @@ Item {
 
 		StatusLabel {
 			text: "Monitoring"
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
-			Layout.fillHeight: true
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00200000
 		}
 
 		StatusLabel {
 			text: "Wireless"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00100000
@@ -279,16 +407,17 @@ Item {
 
 		StatusLabel {
 			text: "Movement\nengine"
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
-			Layout.fillHeight: true
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00080000
 		}
 
 		StatusLabel {
 			text: "Limbs\ndriver"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00040000
@@ -296,8 +425,8 @@ Item {
 
 		StatusLabel {
 			text: "Servo\ndriver"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00020000
@@ -305,19 +434,11 @@ Item {
 
 		StatusLabel {
 			text: "VEEPROM"
-			Layout.minimumHeight: 55
-			Layout.maximumHeight: 55
+			Layout.minimumHeight: 40
+			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00010000
 		}
-	}*/
+	}
 }
-
-
-
-
-/*##^## Designer {
-	D{i:7;anchors_width:490;anchors_x:5;anchors_y:5}D{i:10;anchors_x:5}
-}
- ##^##*/

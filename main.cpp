@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlEngine>
 #include <QQmlContext>
+#include <QFontDatabase>
 #include "core.h"
 
 int main(int argc, char *argv[]) {

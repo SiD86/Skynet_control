@@ -28,8 +28,9 @@ public:
 	explicit WirelessModbus(QObject* parent = nullptr);
 	virtual bool connectToServer(void);
 	virtual bool disconnectFromServer(void);
-	virtual bool readRAM(uint16_t address, QByteArray& buffer, uint8_t bytesCount);
-	virtual bool writeRAM(uint16_t address, const QByteArray& data);
+	virtual const QByteArray& getInternalRecvBuffer(void);
+	virtual bool readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount);
+	virtual bool writeRAM(uint16_t address, QByteArray data);
 	virtual bool readEEPROM(uint16_t address, QByteArray& buffer, uint8_t bytesCount);
 	virtual bool writeEEPROM(uint16_t address, const QByteArray& data);
 
@@ -40,6 +41,7 @@ protected:
 private:
 	QTcpSocket m_socket;
 	QTimer timeoutTimer;
+	QByteArray m_internalRecvBuffer;
 };
 
 #endif // WIRELESSMODBUS_H

@@ -3,15 +3,28 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QtConcurrentRun>
+#include <QFuture>
 #include "wirelessmodbus.h"
 
 class Core : public QObject {
 
 	Q_OBJECT
 
-protected:
-	WirelessModbus m_wirelessModbus;
-	QTimer m_timer;
+public:
+	explicit Core(QObject *parent = nullptr);
+	virtual ~Core();
+	Q_INVOKABLE bool connectToServer();
+	Q_INVOKABLE void sendGetUpCommand();
+	Q_INVOKABLE void sendGetDownCommand();
+	Q_INVOKABLE void sendDirectMoveCommand();
+	Q_INVOKABLE void sendReverseMoveCommand();
+	Q_INVOKABLE void sendRotateLeftCommand();
+	Q_INVOKABLE void sendRotateRightCommand();
+	Q_INVOKABLE void sendUpdateHeightCommand();
+	Q_INVOKABLE void sendStopMoveCommand();
+
+	Q_INVOKABLE void sendSetHeightCommand(QVariant height);
 
 signals:
 	void systemStatusUpdated(QVariant newSystemStatus);
@@ -19,20 +32,10 @@ signals:
 public slots:
 	void statusUpdateTimer();
 
-public:
-	explicit Core(QObject *parent = nullptr);
-	virtual ~Core();
-	Q_INVOKABLE bool connectToServer();
-	Q_INVOKABLE bool sendGetUpCommand();
-	Q_INVOKABLE bool sendGetDownCommand();
-	Q_INVOKABLE bool sendDirectMoveCommand();
-	Q_INVOKABLE bool sendReverseMoveCommand();
-	Q_INVOKABLE bool sendRotateLeftCommand();
-	Q_INVOKABLE bool sendRotateRightCommand();
-	Q_INVOKABLE bool sendUpdateHeightCommand();
-	Q_INVOKABLE bool sendStopMoveCommand();
-
-	Q_INVOKABLE bool sendSetHeightCommand(QVariant height);
+protected:
+	WirelessModbus m_wirelessModbus;
+	QTimer m_statusUpdateTimer;
+	QFuture<bool> m_concurrentFuture;
 };
 
 #endif // CORE_H

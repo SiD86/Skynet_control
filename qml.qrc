@@ -24,6 +24,11 @@
         <file>images/Minus.svg</file>
         <file>images/Plus.svg</file>
         <file>images/Update.svg</file>
+        <file>core.cpp</file>
+        <file>core.h</file>
+        <file>main.cpp</file>
+        <file>wirelessmodbus.cpp</file>
+        <file>wirelessmodbus.h</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

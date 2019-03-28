@@ -1,22 +1,28 @@
 #include "core.h"
 #include <QDebug>
+#include <QtConcurrentRun>
 
 
 void Core::statusUpdateTimer() {
 
-	QByteArray bytes;
-	if (m_wirelessModbus.readRAM(ERROR_STATUS_ADDRESS, bytes, 4) == false) {
-		return;
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	// Make error status
+	const QByteArray& buffer = m_wirelessModbus.getInternalRecvBuffer();
+	if (buffer.size() >= 4) {
+		uint32_t errorStatus = static_cast<uint32_t>((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | (buffer[0] << 0));
+		emit systemStatusUpdated(errorStatus);
 	}
 
-	uint32_t errorStatus = static_cast<uint32_t>((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | (bytes[0] << 0));
-	emit systemStatusUpdated(errorStatus);
+	// Send next request
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::readRAM, ERROR_STATUS_ADDRESS, nullptr, 4);
 }
 
 Core::Core(QObject *parent) : QObject(parent) {
 
-	m_timer.setInterval(1000);
-	connect(&m_timer, &QTimer::timeout, this, &Core::statusUpdateTimer);
+	m_statusUpdateTimer.setInterval(1000);
+	connect(&m_statusUpdateTimer, &QTimer::timeout, this, &Core::statusUpdateTimer);
 }
 
 Core::~Core() {
@@ -26,92 +32,105 @@ Core::~Core() {
 bool Core::connectToServer() {
 
 	if (m_wirelessModbus.connectToServer() == true) {
-		m_timer.start();
+		m_statusUpdateTimer.start();
 		return true;
 	}
 
 	return false;
 }
 
-bool Core::sendGetUpCommand() {
+void Core::sendGetUpCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_UP));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendGetDownCommand() {
+void Core::sendGetDownCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DOWN));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendDirectMoveCommand() {
+void Core::sendDirectMoveCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendReverseMoveCommand() {
+void Core::sendReverseMoveCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendRotateLeftCommand() {
+void Core::sendRotateLeftCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendRotateRightCommand() {
+void Core::sendRotateRightCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendUpdateHeightCommand() {
+void Core::sendUpdateHeightCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_UPDATE_HEIGHT));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendStopMoveCommand() {
+void Core::sendStopMoveCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	QByteArray data;
 	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_NONE));
-
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
-bool Core::sendSetHeightCommand(QVariant height) {
+void Core::sendSetHeightCommand(QVariant height) {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
 
 	uint32_t height32 = static_cast<uint32_t>(height.toInt());
 
 	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SET_HEXAPOD_HEIGHT));
 	data.push_back(static_cast<char>((height32 >> 24) & 0xFF));
 	data.push_back(static_cast<char>((height32 >> 16) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  8) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  0) & 0xFF));
-
-	if (m_wirelessModbus.writeRAM(SCR_ARGUMENT_ADDRESS, data) == false) {
-		return false;
-	}
-	data.clear();
-
-	data.push_back(static_cast<char>(SCR_CMD_SET_HEXAPOD_HEIGHT));
-	return m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }

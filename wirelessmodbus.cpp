@@ -32,17 +32,10 @@ bool WirelessModbus::connectToServer(void) {
 
 	// Connect to server
 	m_socket.connectToHost(QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
-
-	// Wait connect to server
-	timeoutTimer.start(5000);
-	while (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-
-		if (timeoutTimer.isActive() == false) {
-			qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
-			m_socket.disconnectFromHost();
-			return false; // Connection timeout
-		}
-		QGuiApplication::processEvents();
+	if (m_socket.waitForConnected(5000) == false) {
+		qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
+		m_socket.disconnectFromHost();
+		return false;
 	}
 
 	qDebug() << "WirelessModbus: [connectToServer] Connect success";
@@ -60,7 +53,21 @@ bool WirelessModbus::disconnectFromServer(void) {
 	return m_socket.waitForDisconnected(1000);
 }
 
-bool WirelessModbus::readRAM(uint16_t address, QByteArray& buffer, uint8_t bytesCount) {
+const QByteArray& WirelessModbus::getInternalRecvBuffer(void) {
+
+	return m_internalRecvBuffer;
+}
+
+bool WirelessModbus::readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount) {
+
+	static int counter = 0;
+
+	m_internalRecvBuffer.clear();
+	m_internalRecvBuffer.push_back(++counter);
+	m_internalRecvBuffer.push_back(counter);
+	m_internalRecvBuffer.push_back(counter);
+	m_internalRecvBuffer.push_back(counter);
+	return true;
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
@@ -82,17 +89,20 @@ bool WirelessModbus::readRAM(uint16_t address, QByteArray& buffer, uint8_t bytes
 	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
 
 	// Send request and receive response
-	return processModbusTransaction(request, &buffer);
+	if (buffer == nullptr) {
+		buffer = &m_internalRecvBuffer;
+	}
+	buffer->clear();
+	return processModbusTransaction(request, buffer);
 }
 
-bool WirelessModbus::writeRAM(uint16_t address, const QByteArray& data) {
+bool WirelessModbus::writeRAM(uint16_t address, QByteArray data) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
 		qDebug() << "WirelessModbus: [writeRAM] Wrong socket state";
 		return false;
 	}
-
 
 	// Make request
 	QByteArray request;
