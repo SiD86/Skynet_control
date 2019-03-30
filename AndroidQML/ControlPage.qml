@@ -145,8 +145,11 @@ Item {
 			width: 105
 			height: 50
 			imageSrc: "qrc:/images/swordLeft.svg"
-			onButtonClicked: {
+			onButtonPressed: {
 				CppCore.sendAttackLeftCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
 			}
 		}
 
@@ -156,8 +159,11 @@ Item {
 			width: 105
 			height: 50
 			imageSrc: "qrc:/images/swordRight.svg"
-			onButtonClicked: {
+			onButtonPressed: {
 				CppCore.sendAttackRightCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
 			}
 		}
 
