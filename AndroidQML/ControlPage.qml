@@ -355,7 +355,7 @@ Item {
 		columns: 2
 
 		StatusLabel {
-			text: "Reserved"
+			text: "I2C bus\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -364,7 +364,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Memory\nerror"
+			text: "Math\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -373,7 +373,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "I2C bus\nerror"
+			text: "Sync\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -382,7 +382,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Configuration\nerror"
+			text: "Voltage\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -391,7 +391,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Math\nerror"
+			text: "Memory\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -400,7 +400,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Internal\nerror"
+			text: "Configuration\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -409,7 +409,7 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Sync\nerror"
+			text: "Internal\nerror"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -463,15 +463,17 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00800000
+			//deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
-			text: "OLED GL"
+			text: "GUI"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00400000
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -481,15 +483,17 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00200000
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
-			text: "Wireless"
+			text: "Reserved"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00100000
+			//deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -499,6 +503,7 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00080000
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -508,6 +513,7 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00040000
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -517,6 +523,7 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00020000
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -526,6 +533,7 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00010000
+			deactiveColor: "#00DD00"
 		}
 	}
 }
