@@ -51,7 +51,7 @@ Item {
 		sourceSize.width: width
 		sourceSize.height: height
 		fillMode: Image.PreserveAspectFit
-		source: "qrc:/images/Error.svg"
+		source: "qrc:/images/error.svg"
 	}
 
 	Label {
@@ -85,10 +85,8 @@ Item {
 	}
 }
 
-
-
-
 /*##^## Designer {
 	D{i:3;anchors_height:329;anchors_width:337;anchors_x:193;anchors_y:5}D{i:4;anchors_width:255;anchors_x:123;anchors_y:549}
 }
  ##^##*/
+

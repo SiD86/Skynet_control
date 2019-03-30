@@ -60,15 +60,6 @@ const QByteArray& WirelessModbus::getInternalRecvBuffer(void) {
 
 bool WirelessModbus::readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount) {
 
-	static int counter = 0;
-
-	m_internalRecvBuffer.clear();
-	m_internalRecvBuffer.push_back(++counter);
-	m_internalRecvBuffer.push_back(counter);
-	m_internalRecvBuffer.push_back(counter);
-	m_internalRecvBuffer.push_back(counter);
-	return true;
-
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
 		qDebug() << "WirelessModbus: [readRAM] Wrong socket state";

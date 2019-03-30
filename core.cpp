@@ -99,6 +99,76 @@ void Core::sendRotateRightCommand() {
 	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
 }
 
+void Core::sendDirectMoveShortCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT_SHORT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendReverseMoveShortCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT_SHORT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendRotateLeftShortCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT_SHORT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendRotateRightShortCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT_SHORT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendAttackLeftCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ATTACK_LEFT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendAttackRightCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_ATTACK_RIGHT));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
+void Core::sendDanceCommand() {
+
+	if (m_concurrentFuture.isFinished() == false) return;
+
+
+	QByteArray data;
+	data.push_back(static_cast<char>(SCR_CMD_SELECT_SEQUENCE_DANCE));
+	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+}
+
 void Core::sendUpdateHeightCommand() {
 
 	if (m_concurrentFuture.isFinished() == false) return;

@@ -21,6 +21,13 @@ public:
 	Q_INVOKABLE void sendReverseMoveCommand();
 	Q_INVOKABLE void sendRotateLeftCommand();
 	Q_INVOKABLE void sendRotateRightCommand();
+	Q_INVOKABLE void sendDirectMoveShortCommand();
+	Q_INVOKABLE void sendReverseMoveShortCommand();
+	Q_INVOKABLE void sendRotateLeftShortCommand();
+	Q_INVOKABLE void sendRotateRightShortCommand();
+	Q_INVOKABLE void sendAttackLeftCommand();
+	Q_INVOKABLE void sendAttackRightCommand();
+	Q_INVOKABLE void sendDanceCommand();
 	Q_INVOKABLE void sendUpdateHeightCommand();
 	Q_INVOKABLE void sendStopMoveCommand();
 

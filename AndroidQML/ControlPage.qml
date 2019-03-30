@@ -20,19 +20,19 @@ Item {
 
 	Item {
 		id: joystickItem
-		y: 646
-		width: (root.width < 260) ? root.width : 260
-		height: 170
+		y: 653
+		width: 325
+		height: 215
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.bottom: parent.bottom
 		anchors.bottomMargin: 20
 
 		ImageButton {
-			width: 80
-			height: width
-			anchors.horizontalCenter: parent.horizontalCenter
-			anchors.top: parent.top
-			imageSrc: "qrc:/images/arrowUp.svg"
+			x: 110
+			y: 0
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/arrowDoubleUp.svg"
 			onButtonPressed: {
 				CppCore.sendDirectMoveCommand()
 			}
@@ -42,11 +42,11 @@ Item {
 		}
 
 		ImageButton {
-			width: 80
-			height: width
-			anchors.bottom: parent.bottom
-			anchors.left: parent.left
-			imageSrc: "qrc:/images/arrowLeft.svg"
+			x: 0
+			y: 55
+			width: 50
+			height: 105
+			imageSrc: "qrc:/images/arrowDoubleLeft.svg"
 			onButtonPressed: {
 				CppCore.sendRotateLeftCommand()
 			}
@@ -56,11 +56,11 @@ Item {
 		}
 
 		ImageButton {
-			width: 80
-			height: width
-			anchors.bottom: parent.bottom
-			anchors.right: parent.right
-			imageSrc: "qrc:/images/arrowRight.svg"
+			x: 275
+			y: 55
+			width: 50
+			height: 105
+			imageSrc: "qrc:/images/arrowDoubleRight.svg"
 			onButtonPressed: {
 				CppCore.sendRotateRightCommand()
 			}
@@ -70,12 +70,11 @@ Item {
 		}
 
 		ImageButton {
-			width: 80
-			height: width
-			anchors.bottom: parent.bottom
-			anchors.bottomMargin: 0
-			anchors.horizontalCenter: parent.horizontalCenter
-			imageSrc: "qrc:/images/arrowDown.svg"
+			x: 110
+			y: 165
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/arrowDoubleDown.svg"
 			onButtonPressed: {
 				CppCore.sendReverseMoveCommand()
 			}
@@ -83,12 +82,112 @@ Item {
 				CppCore.sendStopMoveCommand()
 			}
 		}
+
+		ImageButton {
+			x: 110
+			y: 55
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/arrowUp.svg"
+			onButtonPressed: {
+				CppCore.sendDirectMoveShortCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
+			}
+		}
+
+		ImageButton {
+			x: 55
+			y: 55
+			width: 50
+			height: 105
+			imageSrc: "qrc:/images/arrowLeft.svg"
+			onButtonPressed: {
+				CppCore.sendRotateLeftShortCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
+			}
+		}
+
+		ImageButton {
+			x: 220
+			y: 55
+			width: 50
+			height: 105
+			imageSrc: "qrc:/images/arrowRight.svg"
+			onButtonPressed: {
+				CppCore.sendRotateRightShortCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
+			}
+		}
+
+		ImageButton {
+			x: 110
+			y: 110
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/arrowDown.svg"
+			onButtonPressed: {
+				CppCore.sendReverseMoveShortCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
+			}
+		}
+
+		ImageButton {
+			x: 0
+			y: 0
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/swordLeft.svg"
+			onButtonClicked: {
+				CppCore.sendAttackLeftCommand()
+			}
+		}
+
+		ImageButton {
+			x: 220
+			y: 0
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/swordRight.svg"
+			onButtonClicked: {
+				CppCore.sendAttackRightCommand()
+			}
+		}
+
+		ImageButton {
+			x: 220
+			y: 165
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/getUp.svg"
+			onButtonClicked: {
+				CppCore.sendGetUpCommand()
+			}
+		}
+
+		ImageButton {
+			x: 0
+			y: 165
+			width: 105
+			height: 50
+			imageSrc: "qrc:/images/getDown.svg"
+			onButtonClicked: {
+				CppCore.sendGetDownCommand()
+			}
+		}
 	}
 
 	Item {
-		height: 80
+		height: 50
 		anchors.right: parent.right
-		anchors.rightMargin: 10
+		anchors.rightMargin: 120
 		anchors.left: parent.left
 		anchors.leftMargin: 10
 		anchors.top: parent.top
@@ -96,11 +195,11 @@ Item {
 
 		ImageButton {
 			id: updateHeightButton
-			width: height
+			width: 105
 			anchors.top: parent.top
 			anchors.bottom: parent.bottom
 			anchors.right: parent.right
-			imageSrc: "qrc:/images/Update.svg"
+			imageSrc: "qrc:/images/update.svg"
 			onButtonClicked: {
 				CppCore.sendUpdateHeightCommand(heightSpinBox.value)
 			}
@@ -124,44 +223,9 @@ Item {
 	}
 
 	Item {
-		id: upDownControls
-		x: 320
-		width: 170
 		height: 80
-		anchors.top: parent.top
-		anchors.topMargin: 200
 		anchors.right: parent.right
 		anchors.rightMargin: 10
-
-		ImageButton {
-			anchors.top: parent.top
-			anchors.bottom: parent.bottom
-			anchors.left: parent.left
-			anchors.right: parent.horizontalCenter
-			anchors.rightMargin: 5
-			imageSrc: "qrc:/images/GetDown.svg"
-			onButtonClicked: {
-				CppCore.sendGetDownCommand()
-			}
-		}
-
-		ImageButton {
-			anchors.top: parent.top
-			anchors.bottom: parent.bottom
-			anchors.left: parent.horizontalCenter
-			anchors.leftMargin: 5
-			anchors.right: parent.right
-			imageSrc: "qrc:/images/GetUp.svg"
-			onButtonClicked: {
-				CppCore.sendGetUpCommand()
-			}
-		}
-	}
-
-	Item {
-		height: 80
-		anchors.right: parent.right
-		anchors.rightMargin: 190
 		anchors.top: parent.top
 		anchors.topMargin: 200
 		anchors.left: parent.left
@@ -205,7 +269,7 @@ Item {
 			height: 22
 			anchors.top: parent.top
 			anchors.right: parent.right
-			anchors.rightMargin: 55
+			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
 			value: 4.2
@@ -217,7 +281,7 @@ Item {
 			height: 22
 			anchors.verticalCenter: parent.verticalCenter
 			anchors.right: parent.right
-			anchors.rightMargin: 55
+			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
 			value: 2.75
@@ -229,7 +293,7 @@ Item {
 			height: 22
 			anchors.bottom: parent.bottom
 			anchors.right: parent.right
-			anchors.rightMargin: 55
+			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
 			value: 2.75
@@ -237,36 +301,36 @@ Item {
 		}
 
 		Label {
-			width: 50
+			width: 40
 			height: 22
 			anchors.top: parent.top
 			anchors.right: parent.right
 			font.pointSize: 12
 			text: qsTr("8.4 V")
 			verticalAlignment: Text.AlignVCenter
-			horizontalAlignment: Text.AlignHCenter
+			horizontalAlignment: Text.AlignRight
 		}
 
 		Label {
-			width: 50
+			width: 40
 			height: 22
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
 			font.pointSize: 12
 			text: qsTr("5.0 V")
 			verticalAlignment: Text.AlignVCenter
-			horizontalAlignment: Text.AlignHCenter
+			horizontalAlignment: Text.AlignRight
 		}
 
 		Label {
-			width: 50
+			width: 40
 			height: 22
 			anchors.right: parent.right
 			anchors.bottom: parent.bottom
 			font.pointSize: 12
 			text: qsTr("5.0 V")
 			verticalAlignment: Text.AlignVCenter
-			horizontalAlignment: Text.AlignHCenter
+			horizontalAlignment: Text.AlignRight
 		}
 	}
 
@@ -353,6 +417,22 @@ Item {
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00000001
+		}
+	}
+
+	ImageButton {
+		x: 410
+		y: 290
+		width: 105
+		height: 50
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+		imageSrc: "qrc:/images/dance.svg"
+		onButtonPressed: {
+			CppCore.sendDanceCommand()
+		}
+		onButtonReleased: {
+			CppCore.sendStopMoveCommand()
 		}
 	}
 

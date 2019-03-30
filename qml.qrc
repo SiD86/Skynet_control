@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>images/logo.png</file>
         <file>qtquickcontrols2.conf</file>
-        <file>images/hexapod.png</file>
-        <file>images/scanner.png</file>
         <file>AndroidQML/ConnectionPage.qml</file>
         <file>AndroidQML/ControlPage.qml</file>
         <file>AndroidQML/ImageButton.qml</file>
@@ -17,18 +15,23 @@
         <file>images/arrowLeft.svg</file>
         <file>images/arrowRight.svg</file>
         <file>images/arrowUp.svg</file>
-        <file>images/GetDown.svg</file>
-        <file>images/GetUp.svg</file>
         <file>AndroidQML/StatusLabel.qml</file>
-        <file>images/Error.svg</file>
-        <file>images/Minus.svg</file>
-        <file>images/Plus.svg</file>
-        <file>images/Update.svg</file>
         <file>core.cpp</file>
         <file>core.h</file>
         <file>main.cpp</file>
         <file>wirelessmodbus.cpp</file>
         <file>wirelessmodbus.h</file>
+        <file>images/arrowDoubleDown.svg</file>
+        <file>images/arrowDoubleLeft.svg</file>
+        <file>images/arrowDoubleRight.svg</file>
+        <file>images/arrowDoubleUp.svg</file>
+        <file>images/dance.svg</file>
+        <file>images/swordLeft.svg</file>
+        <file>images/swordRight.svg</file>
+        <file>images/update.svg</file>
+        <file>images/getDown.svg</file>
+        <file>images/getUp.svg</file>
+        <file>images/error.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>
