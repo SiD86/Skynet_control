@@ -201,7 +201,8 @@ Item {
 			anchors.right: parent.right
 			imageSrc: "qrc:/images/update.svg"
 			onButtonClicked: {
-				CppCore.sendUpdateHeightCommand(heightSpinBox.value)
+				CppCore.sendSetHeightCommand(heightSpinBox.value)
+				CppCore.sendUpdateHeightCommand()
 			}
 		}
 

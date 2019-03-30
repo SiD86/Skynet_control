@@ -202,5 +202,5 @@ void Core::sendSetHeightCommand(QVariant height) {
 	data.push_back(static_cast<char>((height32 >> 16) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  8) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  0) & 0xFF));
-	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
+	m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
 }
