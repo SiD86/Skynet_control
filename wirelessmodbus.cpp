@@ -32,10 +32,17 @@ bool WirelessModbus::connectToServer(void) {
 
 	// Connect to server
 	m_socket.connectToHost(QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
-	if (m_socket.waitForConnected(5000) == false) {
-		qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
-		m_socket.disconnectFromHost();
-		return false;
+
+	// Wait connect to server
+	timeoutTimer.start(5000);
+	while (m_socket.state() == QTcpSocket::SocketState::ConnectingState) {
+
+		if (timeoutTimer.isActive() == false) {
+			qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
+			m_socket.disconnectFromHost();
+			return false; // Connection timeout
+		}
+		QGuiApplication::processEvents();
 	}
 
 	qDebug() << "WirelessModbus: [connectToServer] Connect success";

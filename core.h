@@ -15,6 +15,7 @@ public:
 	explicit Core(QObject *parent = nullptr);
 	virtual ~Core();
 	Q_INVOKABLE bool connectToServer();
+	Q_INVOKABLE void disconnectFromServer();
 	Q_INVOKABLE void sendGetUpCommand();
 	Q_INVOKABLE void sendGetDownCommand();
 	Q_INVOKABLE void sendDirectMoveCommand();

@@ -39,6 +39,11 @@ bool Core::connectToServer() {
 	return false;
 }
 
+void Core::disconnectFromServer() {
+
+	m_wirelessModbus.disconnectFromServer();
+}
+
 void Core::sendGetUpCommand() {
 
 	if (m_concurrentFuture.isFinished() == false) return;

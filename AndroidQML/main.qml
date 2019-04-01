@@ -7,11 +7,23 @@ ApplicationWindow {
 	height: 888
 	color: "#000000"
 
+	onClosing: {
+
+		if (swipeView.currentIndex == 0) {
+			close.accepted = true
+		} else {
+			close.accepted = false
+			swipeView.currentIndex = 0
+			CppCore.disconnectFromServer()
+		}
+	}
+
 	SwipeView {
 		id: swipeView
 		anchors.fill: parent
 		currentIndex: 0
 		clip: true
+		focus: true
 
 		//interactive: false
 		StartPage {
