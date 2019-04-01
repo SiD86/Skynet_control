@@ -54,15 +54,6 @@ Item {
 		}
 
 		MetroButton {
-			imageSrc: "qrc:/images/info.svg"
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-			onButtonClicked: {
-				showInfoPage()
-			}
-		}
-
-		MetroButton {
 			imageSrc: "qrc:/images/settings.svg"
 			Layout.fillHeight: true
 			Layout.fillWidth: true
@@ -76,9 +67,19 @@ Item {
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
+				showInfoPage()
+			}
+		}
+
+
+		/*MetroButton {
+			imageSrc: "qrc:/images/info.svg"
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			onButtonClicked: {
 
 				//startConnectToServer()
 			}
-		}
+		}*/
 	}
 }
