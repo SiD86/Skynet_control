@@ -5,37 +5,13 @@ import QtQuick.Layouts 1.3
 Item {
 
 	signal startConnectToServer
-
-	function showErrorMessage(message) {
-		errorMessageLabel.text = message
-		errorMessageLabel.visible = true
-	}
-	function hideErrorMessage() {
-		errorMessageLabel.visible = false
-	}
+	signal showInfoPage
+	signal showSettingsPage
 
 	id: root
 	width: 500
 	height: 888
 	clip: true
-
-	Label {
-		id: errorMessageLabel
-		y: 340
-		height: 20
-		visible: false
-		color: "#ff0000"
-		text: qsTr("")
-		font.pointSize: 14
-		horizontalAlignment: Text.AlignHCenter
-		anchors.left: parent.left
-		anchors.leftMargin: 10
-		anchors.right: parent.right
-		anchors.rightMargin: 10
-		anchors.bottom: parent.bottom
-		anchors.bottomMargin: 10
-		verticalAlignment: Text.AlignVCenter
-	}
 
 	GridLayout {
 		id: gridLayout
@@ -82,8 +58,7 @@ Item {
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
-
-				//startConnectToServer()
+				showInfoPage()
 			}
 		}
 
@@ -92,8 +67,7 @@ Item {
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			onButtonClicked: {
-
-				//startConnectToServer()
+				showSettingsPage()
 			}
 		}
 

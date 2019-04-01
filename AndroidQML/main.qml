@@ -9,11 +9,11 @@ ApplicationWindow {
 
 	onClosing: {
 
-		if (swipeView.currentIndex == 0) {
+		if (swipeView.currentIndex == 2) {
 			close.accepted = true
 		} else {
 			close.accepted = false
-			swipeView.currentIndex = 0
+			swipeView.currentIndex = 2
 			CppCore.disconnectFromServer()
 		}
 	}
@@ -21,31 +21,48 @@ ApplicationWindow {
 	SwipeView {
 		id: swipeView
 		anchors.fill: parent
-		currentIndex: 0
+		currentIndex: 2
 		clip: true
-		focus: true
 
 		//interactive: false
+		SettingsPage {
+			id: settingsPage
+			enabled: swipeView.currentIndex == 0
+		}
+
+		InfoPage {
+			id: infoPage
+			enabled: swipeView.currentIndex == 1
+		}
+
 		StartPage {
 			id: startPage
+			enabled: swipeView.currentIndex == 2
+
 			onStartConnectToServer: {
-				swipeView.currentIndex = 1
+				swipeView.currentIndex = 3
 				connectionPage.startConnection()
+			}
+			onShowInfoPage: {
+				swipeView.currentIndex = 1
+			}
+			onShowSettingsPage: {
+				swipeView.currentIndex = 0
 			}
 		}
 
 		ConnectionPage {
 			id: connectionPage
-			onGoToStartPage: {
-				swipeView.currentIndex = 0
-			}
+			enabled: swipeView.currentIndex == 3
+
 			onGoToControlPage: {
-				swipeView.currentIndex = 2
+				swipeView.currentIndex = 4
 			}
 		}
 
 		ControlPage {
 			id: controlPage
+			enabled: swipeView.currentIndex == 4
 		}
 	}
 }

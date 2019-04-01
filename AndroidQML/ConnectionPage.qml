@@ -7,21 +7,18 @@ Item {
 	height: 888
 	clip: true
 
-	signal goToStartPage
 	signal goToControlPage
 
 	function startConnection() {
 
 		busyIndicator.visible = true
 		errorImage.visible = false
-		buttonBack.visible = false
 		labelText.text = qsTr("Подключение к устройству...")
 		labelText.color = "#FFFFFF"
 
 		if (!CppCore.connectToServer()) {
 			busyIndicator.visible = false
 			errorImage.visible = true
-			buttonBack.visible = true
 			labelText.text = qsTr("Ошибка при подключении к устройству")
 			labelText.color = "#FF0000"
 		} else {
@@ -67,21 +64,6 @@ Item {
 		anchors.top: busyIndicator.bottom
 		anchors.topMargin: 20
 		font.pointSize: 14
-	}
-
-	Button {
-		id: buttonBack
-		x: 123
-		width: 255
-		height: 48
-		text: qsTr("НАЗАД")
-		anchors.top: labelText.bottom
-		anchors.topMargin: 20
-		anchors.horizontalCenter: parent.horizontalCenter
-		visible: false
-		onClicked: {
-			goToStartPage()
-		}
 	}
 }
 

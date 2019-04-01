@@ -32,6 +32,8 @@
         <file>images/getDown.svg</file>
         <file>images/getUp.svg</file>
         <file>images/error.svg</file>
+        <file>AndroidQML/InfoPage.qml</file>
+        <file>AndroidQML/SettingsPage.qml</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>
