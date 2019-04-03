@@ -12,10 +12,10 @@ class Core : public QObject {
 	Q_OBJECT
 
 public:
-	explicit Core(QObject *parent = nullptr);
-	virtual ~Core();
+	explicit Core(WirelessModbus* wirelessModbus, QObject *parent = nullptr);
 	Q_INVOKABLE bool connectToServer();
 	Q_INVOKABLE void disconnectFromServer();
+
 	Q_INVOKABLE void sendGetUpCommand();
 	Q_INVOKABLE void sendGetDownCommand();
 	Q_INVOKABLE void sendDirectMoveCommand();
@@ -41,7 +41,7 @@ public slots:
 	void statusUpdateTimer();
 
 protected:
-	WirelessModbus m_wirelessModbus;
+	WirelessModbus* m_wirelessModbus;
 	QTimer m_statusUpdateTimer;
 	QFuture<bool> m_concurrentFuture;
 };

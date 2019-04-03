@@ -9,60 +9,79 @@ ApplicationWindow {
 
 	onClosing: {
 
-		if (swipeView.currentIndex == 2) {
-			close.accepted = true
-		} else {
+		if (waitOperationPage.visible) {
 			close.accepted = false
-			swipeView.currentIndex = 2
 			CppCore.disconnectFromServer()
+			CppConfigurationsManager.abortOperations()
+		} else {
+			if (startPage.visible) {
+				close.accepted = true
+				return
+			} else {
+				close.accepted = false
+				CppCore.disconnectFromServer()
+				CppConfigurationsManager.abortOperations()
+			}
+		}
+		showPage(startPage)
+	}
+
+	function showPage(page) {
+		startPage.visible = false
+		controlPage.visible = false
+		settingsPage.visible = false
+		infoPage.visible = false
+		waitOperationPage.visible = false
+		page.visible = true
+	}
+
+	StartPage {
+		id: startPage
+
+		onStartConnectToServer: {
+			showPage(waitOperationPage)
+			if (CppCore.connectToServer()) {
+				showPage(controlPage)
+			} else {
+				waitOperationPage.showOperationError()
+			}
+		}
+		onShowInfoPage: {
+			showPage(infoPage)
+		}
+		onShowSettingsPage: {
+			showPage(settingsPage)
 		}
 	}
 
-	SwipeView {
-		id: swipeView
+	ControlPage {
+		id: controlPage
 		anchors.fill: parent
-		currentIndex: 2
-		clip: true
+	}
 
-		//interactive: false
-		SettingsPage {
-			id: settingsPage
-			enabled: swipeView.currentIndex == 0
+	SettingsPage {
+		id: settingsPage
+		anchors.fill: parent
+
+		onShowWaitOperationPage: {
+			showPage(waitOperationPage)
 		}
-
-		InfoPage {
-			id: infoPage
-			enabled: swipeView.currentIndex == 1
+		onHideWaitOperationPage: {
+			showPage(settingsPage)
 		}
-
-		StartPage {
-			id: startPage
-			enabled: swipeView.currentIndex == 2
-
-			onStartConnectToServer: {
-				swipeView.currentIndex = 3
-				connectionPage.startConnection()
-			}
-			onShowInfoPage: {
-				swipeView.currentIndex = 1
-			}
-			onShowSettingsPage: {
-				swipeView.currentIndex = 0
-			}
+		onShowOperationError: {
+			waitOperationPage.showOperationError()
 		}
+	}
 
-		ConnectionPage {
-			id: connectionPage
-			enabled: swipeView.currentIndex == 3
+	InfoPage {
+		id: infoPage
+		anchors.fill: parent
+	}
 
-			onGoToControlPage: {
-				swipeView.currentIndex = 4
-			}
-		}
-
-		ControlPage {
-			id: controlPage
-			enabled: swipeView.currentIndex == 4
-		}
+	WaitOperationPage {
+		id: waitOperationPage
+		anchors.fill: parent
+		visible: false
 	}
 }

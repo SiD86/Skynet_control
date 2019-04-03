@@ -12,6 +12,7 @@ Item {
 	width: 500
 	height: 888
 	clip: true
+	enabled: true
 
 	GridLayout {
 		id: gridLayout

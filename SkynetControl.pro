@@ -1,4 +1,4 @@
-QT += qml quick xml svg concurrent
+QT += qml quick xml svg concurrent network
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -15,7 +15,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     core.cpp \
     main.cpp \
-    wirelessmodbus.cpp
+    wirelessmodbus.cpp \
+    configurationsmanager.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,11 +33,16 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     core.h \
-    wirelessmodbus.h
+    wirelessmodbus.h \
+    configurationsmanager.h
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
+
+    ANDROID_EXTRA_LIBS = \
+        E:/Unknown/4/trunk/libs/libcrypto.so \
+        E:/Unknown/4/trunk/libs/libssl.so
 }
 
 DISTFILES += \

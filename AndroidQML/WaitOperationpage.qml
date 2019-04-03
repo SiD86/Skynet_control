@@ -6,24 +6,20 @@ Item {
 	width: 500
 	height: 888
 	clip: true
+	visible: false
 
-	signal goToControlPage
-
-	function startConnection() {
-
+	onVisibleChanged: {
 		busyIndicator.visible = true
 		errorImage.visible = false
-		labelText.text = qsTr("Подключение к устройству...")
+		labelText.text = qsTr("Операция выполняется...")
 		labelText.color = "#FFFFFF"
+	}
 
-		if (!CppCore.connectToServer()) {
-			busyIndicator.visible = false
-			errorImage.visible = true
-			labelText.text = qsTr("Ошибка при подключении к устройству")
-			labelText.color = "#FF0000"
-		} else {
-			goToControlPage()
-		}
+	function showOperationError() {
+		busyIndicator.visible = false
+		errorImage.visible = true
+		labelText.text = qsTr("Ошибка при выполнении операции")
+		labelText.color = "#FF0000"
 	}
 
 	BusyIndicator {

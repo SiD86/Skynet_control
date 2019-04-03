@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>images/logo.png</file>
         <file>qtquickcontrols2.conf</file>
-        <file>AndroidQML/ConnectionPage.qml</file>
         <file>AndroidQML/ControlPage.qml</file>
         <file>AndroidQML/ImageButton.qml</file>
         <file>AndroidQML/main.qml</file>
@@ -34,6 +33,7 @@
         <file>images/error.svg</file>
         <file>AndroidQML/InfoPage.qml</file>
         <file>AndroidQML/SettingsPage.qml</file>
+        <file>AndroidQML/WaitOperationPage.qml</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

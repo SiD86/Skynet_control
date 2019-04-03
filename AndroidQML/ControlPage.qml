@@ -10,6 +10,7 @@ Item {
 	width: 500
 	height: 888
 	clip: true
+	visible: false
 
 	Connections {
 		target: CppCore
