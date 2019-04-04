@@ -12,7 +12,7 @@ class Core : public QObject {
 	Q_OBJECT
 
 public:
-	explicit Core(WirelessModbus* wirelessModbus, QObject *parent = nullptr);
+	explicit Core(QObject *parent = nullptr);
 	Q_INVOKABLE bool connectToServer();
 	Q_INVOKABLE void disconnectFromServer();
 
@@ -39,10 +39,15 @@ signals:
 
 public slots:
 	void statusUpdateTimer();
+	void timeoutTimerEvent();
 
 protected:
-	WirelessModbus* m_wirelessModbus;
+	void writeToSCR(int cmd);
+
+protected:
+	WirelessModbus m_wirelessModbus;
 	QTimer m_statusUpdateTimer;
+	QTimer m_timeoutTimer;
 	QFuture<bool> m_concurrentFuture;
 };
 

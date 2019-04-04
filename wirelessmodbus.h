@@ -33,8 +33,9 @@ class WirelessModbus : public QObject {
 
 public:
 	explicit WirelessModbus(QObject* parent = nullptr);
-	virtual bool connectToServer(void);
-	virtual bool disconnectFromServer(void);
+	virtual void startConnectToServer(void);
+	virtual bool isConnected(void);
+	virtual void disconnectFromServer(void);
 	virtual const QByteArray& getInternalRecvBuffer(void);
 	virtual bool readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount);
 	virtual bool writeRAM(uint16_t address, QByteArray data);
@@ -47,7 +48,6 @@ protected:
 
 private:
 	QTcpSocket m_socket;
-	QTimer timeoutTimer;
 	QByteArray m_internalRecvBuffer;
 };
 

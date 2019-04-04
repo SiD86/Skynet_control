@@ -15,8 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     core.cpp \
     main.cpp \
-    wirelessmodbus.cpp \
-    configurationsmanager.cpp
+    wirelessmodbus.cpp
 
 RESOURCES += qml.qrc
 
@@ -33,8 +32,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     core.h \
-    wirelessmodbus.h \
-    configurationsmanager.h
+    wirelessmodbus.h
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_PACKAGE_SOURCE_DIR = \

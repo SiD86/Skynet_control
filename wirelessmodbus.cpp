@@ -19,45 +19,35 @@
 
 WirelessModbus::WirelessModbus(QObject* parent) : QObject(parent) {
 
-	timeoutTimer.setSingleShot(true);
 }
 
-bool WirelessModbus::connectToServer(void) {
+void WirelessModbus::startConnectToServer(void) {
 
 	// Check socket state
 	if (m_socket.state() == QTcpSocket::SocketState::ConnectedState) {
 		qDebug() << "WirelessModbus: [connectToServer] Wrong socket state";
-		return true;
+		return;
 	}
 
 	// Connect to server
+	m_socket.abort();
 	m_socket.connectToHost(QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
+}
 
-	// Wait connect to server
-	timeoutTimer.start(5000);
-	while (m_socket.state() == QTcpSocket::SocketState::ConnectingState) {
+bool WirelessModbus::isConnected() {
 
-		if (timeoutTimer.isActive() == false) {
-			qDebug() << "WirelessModbus: [connectToServer] Cannot connect to server";
-			m_socket.disconnectFromHost();
-			return false; // Connection timeout
-		}
-		QGuiApplication::processEvents();
-	}
-
-	qDebug() << "WirelessModbus: [connectToServer] Connect success";
 	return m_socket.state() == QTcpSocket::SocketState::ConnectedState;
 }
 
-bool WirelessModbus::disconnectFromServer(void) {
+void WirelessModbus::disconnectFromServer(void) {
 
 	// Check socket state
 	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		return true;
+		return;
 	}
 
+	m_socket.abort();
 	m_socket.disconnectFromHost();
-	return m_socket.waitForDisconnected(1000);
 }
 
 const QByteArray& WirelessModbus::getInternalRecvBuffer(void) {
@@ -190,13 +180,7 @@ bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteAr
 	}
 
 	// Wait response
-	timeoutTimer.start(150);
 	while (m_socket.bytesAvailable() < MODBUS_MIN_RESPONSE_LENGTH) {
-
-		if (timeoutTimer.isActive() == false) {
-			qDebug() << "WirelessModbus: [processModbusTransaction] Receive response timeout. Bytes received: " << m_socket.bytesAvailable();
-			return false;
-		}
 		QGuiApplication::processEvents();
 	}
 	qDebug() << "WirelessModbus: [processModbusTransaction] Frame received: " << m_socket.bytesAvailable();

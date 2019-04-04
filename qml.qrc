@@ -5,11 +5,7 @@
         <file>AndroidQML/ControlPage.qml</file>
         <file>AndroidQML/ImageButton.qml</file>
         <file>AndroidQML/main.qml</file>
-        <file>AndroidQML/StartPage.qml</file>
         <file>AndroidQML/MetroButton.qml</file>
-        <file>images/info.svg</file>
-        <file>images/control.svg</file>
-        <file>images/settings.svg</file>
         <file>images/arrowDown.svg</file>
         <file>images/arrowLeft.svg</file>
         <file>images/arrowRight.svg</file>
@@ -30,10 +26,7 @@
         <file>images/update.svg</file>
         <file>images/getDown.svg</file>
         <file>images/getUp.svg</file>
-        <file>images/error.svg</file>
-        <file>AndroidQML/InfoPage.qml</file>
-        <file>AndroidQML/SettingsPage.qml</file>
-        <file>AndroidQML/WaitOperationPage.qml</file>
+        <file>AndroidQML/ConnectionPage.qml</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>
