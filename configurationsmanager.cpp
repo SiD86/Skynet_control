@@ -23,6 +23,9 @@ ConfigurationsManager::ConfigurationsManager(WirelessModbus* wirelessModbus, QOb
 
 bool ConfigurationsManager::loadConfigurationList(void) {
 
+	emit showLogMessage("Download configuration list from server...");
+	QGuiApplication::processEvents();
+
 	// Read available configuration list
 	m_isDownloadInProgress = true;
 	m_networkRequest.setUrl(QUrl(FILE_LIST_URL));
@@ -32,11 +35,19 @@ bool ConfigurationsManager::loadConfigurationList(void) {
 	}
 
 	if (m_downloadData.size() == 0) {
+		emit showLogMessage("FAIL");
+		QGuiApplication::processEvents();
+		return false;
+	}
+
+	QString fileNames = QString::fromUtf8(m_downloadData);
+	if (fileNames.indexOf("404: Not Found") != -1) {
+		emit showLogMessage("FAIL");
+		QGuiApplication::processEvents();
 		return false;
 	}
 
 	// Parse file names
-	QString fileNames = QString::fromUtf8(m_downloadData);
 	while (true) {
 
 		int index = fileNames.indexOf('\n');
@@ -58,6 +69,9 @@ bool ConfigurationsManager::loadConfigurationList(void) {
 
 bool ConfigurationsManager::loadConfiguration(QString configurationName) {
 
+	emit showLogMessage("Download configuration from server...");
+	QGuiApplication::processEvents();
+
 	// Load configuration file
 	m_isDownloadInProgress = true;
 	m_networkRequest.setUrl(QUrl(CONFIGURATION_FILE_BASER_URL + configurationName));
@@ -67,14 +81,21 @@ bool ConfigurationsManager::loadConfiguration(QString configurationName) {
 	}
 
 	if (m_downloadData.size() == 0) {
+		emit showLogMessage("FAIL");
+		QGuiApplication::processEvents();
 		return false;
 	}
 
 
 	QString memoryMap = QString::fromUtf8(m_downloadData);
 	if (memoryMap.indexOf("404: Not Found") != -1) {
+		emit showLogMessage("FAIL");
+		QGuiApplication::processEvents();
 		return false;
 	}
+
+	emit showLogMessage("Prepare configuration...");
+	QGuiApplication::processEvents();
 
 	while (true) {
 
@@ -94,6 +115,9 @@ bool ConfigurationsManager::loadConfiguration(QString configurationName) {
 		}
 	}
 
+	emit showLogMessage("Load configuration to device...");
+	QGuiApplication::processEvents();
+
 	while (memoryMap.size() != 0) {
 
 		// Get memory line address
@@ -110,6 +134,9 @@ bool ConfigurationsManager::loadConfiguration(QString configurationName) {
 			memoryMap = memoryMap.mid(2, -1);
 		}
 
+		emit showLogMessage(QString("Write data to address: 0x") + hexAddress + "...");
+		QGuiApplication::processEvents();
+
 		// Write data to EEPROM
 		auto future = QtConcurrent::run(m_wirelessModbus, &WirelessModbus::writeEEPROM, address, memoryLine);
 
@@ -120,6 +147,8 @@ bool ConfigurationsManager::loadConfiguration(QString configurationName) {
 
 		// Check result
 		if (future.result() == false) {
+			emit showLogMessage("FAIL");
+			QGuiApplication::processEvents();
 			return false;
 		}
 	}

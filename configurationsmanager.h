@@ -19,6 +19,7 @@ public:
 
 signals:
 	void configurationFound(QString fileName);
+	void showLogMessage(QString message);
 
 private:
 	WirelessModbus* m_wirelessModbus;

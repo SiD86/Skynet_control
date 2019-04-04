@@ -11,6 +11,7 @@ Item {
 	signal showWaitOperationPage
 	signal hideWaitOperationPage
 	signal showOperationError
+	signal operationProgressUpdated(var min, var max, var value)
 
 	Connections {
 		target: CppConfigurationsManager

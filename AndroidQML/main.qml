@@ -7,7 +7,14 @@ ApplicationWindow {
 	height: 888
 	color: "#000000"
 
+	property bool isApplicationBusy: false
+
 	onClosing: {
+
+		if (isApplicationBusy == true) {
+			close.accepted = false
+			return
+		}
 
 		if (waitOperationPage.visible) {
 			close.accepted = false
@@ -39,17 +46,24 @@ ApplicationWindow {
 		id: startPage
 
 		onStartConnectToServer: {
+
+			isApplicationBusy = true
 			showPage(waitOperationPage)
+
 			if (CppCore.connectToServer()) {
+				isApplicationBusy = false
 				showPage(controlPage)
 			} else {
+				isApplicationBusy = false
 				waitOperationPage.showOperationError()
 			}
 		}
 		onShowInfoPage: {
+			isApplicationBusy = false
 			showPage(infoPage)
 		}
 		onShowSettingsPage: {
+			isApplicationBusy = false
 			showPage(settingsPage)
 		}
 	}
@@ -64,13 +78,19 @@ ApplicationWindow {
 		anchors.fill: parent
 
 		onShowWaitOperationPage: {
+			isApplicationBusy = true
 			showPage(waitOperationPage)
 		}
 		onHideWaitOperationPage: {
+			isApplicationBusy = false
 			showPage(settingsPage)
 		}
 		onShowOperationError: {
+			isApplicationBusy = false
 			waitOperationPage.showOperationError()
+		}
+		onOperationProgressUpdated: {
+			waitOperationPage.setProgressBarConfig(min, max, value)
 		}
 	}
 
