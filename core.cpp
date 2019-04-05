@@ -8,28 +8,26 @@
 Core::Core(QObject *parent) : QObject(parent) {
 
 	m_statusUpdateTimer.setInterval(1000);
-	m_timeoutTimer.setInterval(250);
-
 	connect(&m_statusUpdateTimer, &QTimer::timeout, this, &Core::statusUpdateTimer);
-	connect(&m_timeoutTimer, &QTimer::timeout, this, &Core::timeoutTimerEvent);
+
+	m_wirelessModbus = new WirelessModbus;
+	m_wirelessModbus->moveToThread(&m_thread);
+	m_thread.start();
+
+	connect(this, &Core::connectToServerSignal, m_wirelessModbus, &WirelessModbus::connectToServer);
+	connect(this, &Core::disconnectFromServerSignal, m_wirelessModbus, &WirelessModbus::disconnectFromServer);
+	connect(this, &Core::writeDataToRamSignal, m_wirelessModbus, &WirelessModbus::writeRAM);
+	connect(this, &Core::readDataFromRamSignal, m_wirelessModbus, &WirelessModbus::readRAM);
 }
 
 bool Core::connectToServer() {
 
-	m_wirelessModbus.startConnectToServer();
+	emit connectToServerSignal();
+	this->waitOperationCompleted();
 
-	QTimer timeoutTimer;
-	timeoutTimer.setSingleShot(true);
-	timeoutTimer.setInterval(5000);
-	timeoutTimer.start();
-	while (m_wirelessModbus.isConnected() == false) {
-
-		QGuiApplication::processEvents();
-
-		if (timeoutTimer.isActive() == false) {
-			m_wirelessModbus.disconnectFromServer();
-			return false;
-		}
+	if (m_wirelessModbus->operationResult() == false) {
+		m_statusUpdateTimer.stop();
+		return false;
 	}
 
 	m_statusUpdateTimer.start();
@@ -39,24 +37,26 @@ bool Core::connectToServer() {
 void Core::disconnectFromServer() {
 
 	m_statusUpdateTimer.stop();
-	m_wirelessModbus.disconnectFromServer();
+
+	emit disconnectFromServerSignal();
+	this->waitOperationCompleted();
 }
 
-void Core::sendGetUpCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UP);                     }
-void Core::sendGetDownCommand()          { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DOWN);                   }
-void Core::sendDirectMoveCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT);        }
-void Core::sendReverseMoveCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT);       }
-void Core::sendRotateLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT);            }
-void Core::sendRotateRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT);           }
-void Core::sendDirectMoveShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT_SHORT);  }
-void Core::sendReverseMoveShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT_SHORT); }
-void Core::sendRotateLeftShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT_SHORT);      }
-void Core::sendRotateRightShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT_SHORT);     }
-void Core::sendAttackLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_LEFT);            }
-void Core::sendAttackRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_RIGHT);           }
-void Core::sendDanceCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DANCE);                  }
-void Core::sendUpdateHeightCommand()     { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UPDATE_HEIGHT);          }
-void Core::sendStopMoveCommand()         { writeToSCR(SCR_CMD_SELECT_SEQUENCE_NONE);                   }
+void Core::sendGetUpCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UP, 1);                     }
+void Core::sendGetDownCommand()          { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DOWN, 1);                   }
+void Core::sendDirectMoveCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT, 1);        }
+void Core::sendReverseMoveCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT, 1);       }
+void Core::sendRotateLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT, 1);            }
+void Core::sendRotateRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT, 1);           }
+void Core::sendDirectMoveShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT_SHORT, 1);  }
+void Core::sendReverseMoveShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT_SHORT, 1); }
+void Core::sendRotateLeftShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT_SHORT, 1);      }
+void Core::sendRotateRightShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT_SHORT, 1);     }
+void Core::sendAttackLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_LEFT, 1);            }
+void Core::sendAttackRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_RIGHT, 1);           }
+void Core::sendDanceCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DANCE, 1);                  }
+void Core::sendUpdateHeightCommand()     { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UPDATE_HEIGHT, 1);          }
+void Core::sendStopMoveCommand()         { writeToSCR(SCR_CMD_SELECT_SEQUENCE_NONE, 5);                   }
 
 void Core::sendSetHeightCommand(QVariant height) {
 
@@ -71,21 +71,32 @@ void Core::sendSetHeightCommand(QVariant height) {
 	data.push_back(static_cast<char>((height32 >> 16) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  8) & 0xFF));
 	data.push_back(static_cast<char>((height32 >>  0) & 0xFF));
-	m_wirelessModbus.writeRAM(SCR_REGISTER_ADDRESS, data);
+	m_wirelessModbus->writeRAM(SCR_REGISTER_ADDRESS, data);
 }
 
 
-void Core::writeToSCR(int cmd) {
-
-	if (m_concurrentFuture.isFinished() == false) return;
-
-
-	m_statusUpdateTimer.stop();
+void Core::writeToSCR(int cmd, int retryCount) {
 
 	QByteArray data;
 	data.push_back(static_cast<char>(cmd));
-	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::writeRAM, SCR_REGISTER_ADDRESS, data);
-	m_timeoutTimer.start();
+
+	for (int i = 0; i < retryCount; ++i) {
+
+		emit writeDataToRamSignal(SCR_REGISTER_ADDRESS, data);
+		this->waitOperationCompleted();
+
+		if (m_wirelessModbus->operationResult()) {
+			break;
+		}
+	}
+}
+
+void Core::waitOperationCompleted() {
+
+	while (m_wirelessModbus->isOperationInProgress() == false);
+	while (m_wirelessModbus->isOperationInProgress() == true) {
+		QGuiApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	}
 }
 
 
@@ -95,23 +106,19 @@ void Core::writeToSCR(int cmd) {
 //
 void Core::statusUpdateTimer() {
 
-	if (m_concurrentFuture.isFinished() == false) return;
+	QByteArray buffer;
+	emit readDataFromRamSignal(ERROR_STATUS_ADDRESS, &buffer, 4);
+	waitOperationCompleted();
 
+	if (m_wirelessModbus->operationResult() == false) {
+		return;
+	}
 
 	// Make error status
-	const QByteArray& buffer = m_wirelessModbus.getInternalRecvBuffer();
-	if (buffer.size() >= 4) {
+	if (buffer.size() == 4) {
 		uint32_t errorStatus = static_cast<uint32_t>((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | (buffer[0] << 0));
-		emit systemStatusUpdated(errorStatus);
+		emit systemStatusUpdatedSignal(errorStatus);
 	}
 
-	// Send next request
-	m_concurrentFuture = QtConcurrent::run(&m_wirelessModbus, &WirelessModbus::readRAM, ERROR_STATUS_ADDRESS, nullptr, 4);
-}
-
-void Core::timeoutTimerEvent() {
-
-	if (m_concurrentFuture.isFinished() == false) {
-		m_concurrentFuture.cancel();
-	}
+	qDebug() << "status recv";
 }

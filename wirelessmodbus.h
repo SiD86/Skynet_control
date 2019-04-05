@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QThread>
 
 #define SCR_REGISTER_ADDRESS								(0x0060)
 #define		SCR_CMD_SELECT_SEQUENCE_UP						(0x01)
@@ -33,22 +34,27 @@ class WirelessModbus : public QObject {
 
 public:
 	explicit WirelessModbus(QObject* parent = nullptr);
-	virtual void startConnectToServer(void);
-	virtual bool isConnected(void);
-	virtual void disconnectFromServer(void);
-	virtual const QByteArray& getInternalRecvBuffer(void);
-	virtual bool readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount);
-	virtual bool writeRAM(uint16_t address, QByteArray data);
-	virtual bool readEEPROM(uint16_t address, QByteArray& buffer, uint8_t bytesCount);
-	virtual bool writeEEPROM(uint16_t address, const QByteArray& data);
+	bool isOperationInProgress() const;
+	bool operationResult() const;
+
+public slots:
+	void connectToServer(void);
+	void disconnectFromServer(void);
+	void readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount);
+	void writeRAM(uint16_t address, QByteArray data);
+	void readEEPROM(uint16_t address, QByteArray* buffer, uint8_t bytesCount);
+	void writeEEPROM(uint16_t address, const QByteArray& data);
 
 protected:
+	void initialize();
 	bool processModbusTransaction(const QByteArray& request, QByteArray* responseData);
 	uint16_t calculateCRC16(const QByteArray &frameByteArray);
 
 private:
-	QTcpSocket m_socket;
-	QByteArray m_internalRecvBuffer;
+	QTcpSocket* m_socket;
+	QTimer* m_timeoutTimer;
+	bool m_operationInProgress;
+	bool m_operationResult;
 };
 
 #endif // WIRELESSMODBUS_H

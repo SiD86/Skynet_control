@@ -19,174 +19,252 @@
 
 WirelessModbus::WirelessModbus(QObject* parent) : QObject(parent) {
 
+	m_socket = nullptr;
 }
 
-void WirelessModbus::startConnectToServer(void) {
+bool WirelessModbus::isOperationInProgress() const {
+
+	return m_operationInProgress;
+}
+
+bool WirelessModbus::operationResult() const {
+
+	return m_operationResult;
+}
+
+void WirelessModbus::connectToServer(void) {
+
+	qDebug() << "WirelessModbus: [connectToServer] Start";
+	m_operationInProgress = true;
+
+	this->initialize();
 
 	// Check socket state
-	if (m_socket.state() == QTcpSocket::SocketState::ConnectedState) {
+	if (m_socket->state() == QTcpSocket::SocketState::ConnectedState) {
 		qDebug() << "WirelessModbus: [connectToServer] Wrong socket state";
 		return;
 	}
 
+
 	// Connect to server
-	m_socket.abort();
-	m_socket.connectToHost(QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
-}
+	m_socket->abort();
+	m_socket->connectToHost(QHostAddress(SERVER_IP_ADDRESS), SERVER_PORT);
+	m_operationResult = m_socket->waitForConnected(5000);
+	if (m_operationResult == false) {
+		m_socket->abort();
+	}
 
-bool WirelessModbus::isConnected() {
-
-	return m_socket.state() == QTcpSocket::SocketState::ConnectedState;
+	qDebug() << "WirelessModbus: [connectToServer] Stop";
+	m_operationInProgress = false;
 }
 
 void WirelessModbus::disconnectFromServer(void) {
 
-	// Check socket state
-	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		return;
-	}
+	qDebug() << "WirelessModbus: [disconnectFromServer] Start";
+	m_operationInProgress = true;
 
-	m_socket.abort();
-	m_socket.disconnectFromHost();
+	this->initialize();
+	m_socket->abort();
+	m_socket->disconnectFromHost();
+
+	qDebug() << "WirelessModbus: [disconnectFromServer] Stop";
+	m_operationResult = true;
+	m_operationInProgress = false;
 }
 
-const QByteArray& WirelessModbus::getInternalRecvBuffer(void) {
+void WirelessModbus::readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount) {
 
-	return m_internalRecvBuffer;
+	qDebug() << "WirelessModbus: [readRAM] Start";
+	m_operationInProgress = true;
+
+	this->initialize();
+
+	do
+	{
+		// Check socket state
+		if (m_socket->state() != QTcpSocket::SocketState::ConnectedState) {
+			qDebug() << "WirelessModbus: [readRAM] Wrong socket state";
+			m_operationResult = false;
+			break;
+		}
+
+		// Make request
+		QByteArray request;
+		request.push_back(static_cast<char>(0xFE));
+		request.push_back(static_cast<char>(MODBUS_CMD_READ_RAM));
+		request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+		request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+		request.push_back(static_cast<char>(bytesCount));
+
+		uint16_t crc = calculateCRC16(request);
+		request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+		request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+		// Send request and receive response
+		buffer->clear();
+		m_operationResult = processModbusTransaction(request, buffer);
+	}
+	while (false);
+
+	qDebug() << "WirelessModbus: [readRAM] Stop";
+	m_operationInProgress = false;
 }
 
-bool WirelessModbus::readRAM(uint16_t address, QByteArray* buffer, uint8_t bytesCount) {
+void WirelessModbus::writeRAM(uint16_t address, QByteArray data) {
 
-	// Check socket state
-	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [readRAM] Wrong socket state";
-		return false;
+	qDebug() << "WirelessModbus: [writeRAM] Start";
+	m_operationInProgress = true;
+
+	this->initialize();
+
+	do
+	{
+		// Check socket state
+		if (m_socket->state() != QTcpSocket::SocketState::ConnectedState) {
+			qDebug() << "WirelessModbus: [writeRAM] Wrong socket state";
+			m_operationResult = false;
+			break;
+		}
+
+		// Make request
+		QByteArray request;
+		request.push_back(static_cast<char>(0xFE));
+		request.push_back(static_cast<char>(MODBUS_CMD_WRITE_RAM));
+		request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+		request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+		request.push_back(static_cast<char>(data.size()));
+		for (int i = 0; i < data.size(); ++i) {
+			request.push_back(static_cast<char>(data[i]));
+		}
+
+		uint16_t crc = calculateCRC16(request);
+		request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+		request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+		// Send request and receive response
+		m_operationResult = processModbusTransaction(request, nullptr);
 	}
+	while (0);
 
-
-	// Make request
-	QByteArray request;
-	request.push_back(static_cast<char>(0xFE));
-	request.push_back(static_cast<char>(MODBUS_CMD_READ_RAM));
-	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
-	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
-	request.push_back(static_cast<char>(bytesCount));
-
-	uint16_t crc = calculateCRC16(request);
-	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
-	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
-
-	// Send request and receive response
-	if (buffer == nullptr) {
-		buffer = &m_internalRecvBuffer;
-	}
-	buffer->clear();
-	return processModbusTransaction(request, buffer);
+	qDebug() << "WirelessModbus: [writeRAM] Stop";
+	m_operationInProgress = false;
 }
 
-bool WirelessModbus::writeRAM(uint16_t address, QByteArray data) {
+void WirelessModbus::readEEPROM(uint16_t address, QByteArray* buffer, uint8_t bytesCount) {
 
-	// Check socket state
-	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [writeRAM] Wrong socket state";
-		return false;
+	qDebug() << "WirelessModbus: [readEEPROM] Start";
+	m_operationInProgress = true;
+
+	this->initialize();
+
+	do
+	{
+		// Check socket state
+		if (m_socket->state() != QTcpSocket::SocketState::ConnectedState) {
+			qDebug() << "WirelessModbus: [readEEPROM] Wrong socket state";
+			m_operationResult = false;
+			break;
+		}
+
+		// Make request
+		QByteArray request;
+		request.push_back(static_cast<char>(0xFE));
+		request.push_back(static_cast<char>(MODBUS_CMD_READ_EEPROM));
+		request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+		request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+		request.push_back(static_cast<char>(bytesCount));
+
+		uint16_t crc = calculateCRC16(request);
+		request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+		request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+		// Send request and receive response
+		buffer->clear();
+		m_operationResult = processModbusTransaction(request, buffer);
 	}
+	while (false);
 
-	// Make request
-	QByteArray request;
-	request.push_back(static_cast<char>(0xFE));
-	request.push_back(static_cast<char>(MODBUS_CMD_WRITE_RAM));
-	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
-	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
-	request.push_back(static_cast<char>(data.size()));
-	for (int i = 0; i < data.size(); ++i) {
-		request.push_back(static_cast<char>(data[i]));
-	}
-
-	uint16_t crc = calculateCRC16(request);
-	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
-	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
-
-	// Send request and receive response
-	return processModbusTransaction(request, nullptr);
+	qDebug() << "WirelessModbus: [readEEPROM] Stop";
+	m_operationInProgress = false;
 }
 
-bool WirelessModbus::readEEPROM(uint16_t address, QByteArray& buffer, uint8_t bytesCount) {
+void WirelessModbus::writeEEPROM(uint16_t address, const QByteArray& data) {
 
-	// Check socket state
-	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [readRAM] Wrong socket state";
-		return false;
+	qDebug() << "WirelessModbus: [writeEEPROM] Start";
+	m_operationInProgress = true;
+
+	this->initialize();
+
+	do
+	{
+		// Check socket state
+		if (m_socket->state() != QTcpSocket::SocketState::ConnectedState) {
+			qDebug() << "WirelessModbus: [writeEEPROM] Wrong socket state";
+			m_operationResult = false;
+			break;
+		}
+
+		// Make request
+		QByteArray request;
+		request.push_back(static_cast<char>(0xFE));
+		request.push_back(static_cast<char>(MODBUS_CMD_WRITE_EEPROM));
+		request.push_back(static_cast<char>((address & 0xFF00) >> 8));
+		request.push_back(static_cast<char>((address & 0x00FF) >> 0));
+		request.push_back(static_cast<char>(data.size()));
+		for (int i = 0; i < data.size(); ++i) {
+			request.push_back(static_cast<char>(data[i]));
+		}
+
+		uint16_t crc = calculateCRC16(request);
+		request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
+		request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
+
+		// Send request and receive response
+		m_operationResult = processModbusTransaction(request, nullptr);
 	}
+	while (0);
 
-
-	// Make request
-	QByteArray request;
-	request.push_back(static_cast<char>(0xFE));
-	request.push_back(static_cast<char>(MODBUS_CMD_READ_EEPROM));
-	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
-	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
-	request.push_back(static_cast<char>(bytesCount));
-
-	uint16_t crc = calculateCRC16(request);
-	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
-	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
-
-	// Send request and receive response
-	return processModbusTransaction(request, &buffer);
-}
-
-bool WirelessModbus::writeEEPROM(uint16_t address, const QByteArray& data) {
-
-	// Check socket state
-	if (m_socket.state() != QTcpSocket::SocketState::ConnectedState) {
-		qDebug() << "WirelessModbus: [writeRAM] Wrong socket state";
-		return false;
-	}
-
-
-	// Make request
-	QByteArray request;
-	request.push_back(static_cast<char>(0xFE));
-	request.push_back(static_cast<char>(MODBUS_CMD_WRITE_EEPROM));
-	request.push_back(static_cast<char>((address & 0xFF00) >> 8));
-	request.push_back(static_cast<char>((address & 0x00FF) >> 0));
-	request.push_back(static_cast<char>(data.size()));
-	for (int i = 0; i < data.size(); ++i) {
-		request.push_back(static_cast<char>(data[i]));
-	}
-
-	uint16_t crc = calculateCRC16(request);
-	request.push_back(static_cast<char>((crc & 0x00FF) >> 0));
-	request.push_back(static_cast<char>((crc & 0xFF00) >> 8));
-
-	// Send request and receive response
-	return processModbusTransaction(request, nullptr);
+	qDebug() << "WirelessModbus: [writeEEPROM] Stop";
+	m_operationInProgress = false;
 }
 
 
 
+
+void WirelessModbus::initialize() {
+
+	if (m_socket == nullptr) {
+		m_socket = new QTcpSocket(this);
+		m_timeoutTimer = new QTimer;
+	}
+}
 
 bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteArray* responseData) {
 
 	// Clear socket
-	m_socket.readAll();
+	m_socket->readAll();
 
 	// Send request
-	m_socket.write(request);
-	if (m_socket.waitForBytesWritten(20) == false) {
-		qDebug() << "WirelessModbus: [processModbusTransaction] waitForBytesWritten";
-		return false;
-	}
+	m_socket->write(request);
+	m_socket->flush();
 
 	// Wait response
-	while (m_socket.bytesAvailable() < MODBUS_MIN_RESPONSE_LENGTH) {
+	m_timeoutTimer->stop();
+	m_timeoutTimer->setInterval(100);
+	m_timeoutTimer->setSingleShot(true);
+	m_timeoutTimer->start();
+	while (m_socket->bytesAvailable() < MODBUS_MIN_RESPONSE_LENGTH) {
+
 		QGuiApplication::processEvents();
+
+		if (m_timeoutTimer->isActive() == false) {
+			return false;
+		}
 	}
-	qDebug() << "WirelessModbus: [processModbusTransaction] Frame received: " << m_socket.bytesAvailable();
+	qDebug() << "WirelessModbus: [processModbusTransaction] Frame received: " << m_socket->bytesAvailable();
 
 	// Read response
-	QByteArray response = m_socket.readAll();
+	QByteArray response = m_socket->readAll();
 
 	// Verify response
 	if (this->calculateCRC16(response) != 0) {

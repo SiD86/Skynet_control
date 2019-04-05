@@ -13,7 +13,7 @@ Item {
 
 	Connections {
 		target: CppCore
-		onSystemStatusUpdated: {
+		onSystemStatusUpdatedSignal: {
 			systemStatus = newSystemStatus
 		}
 	}

@@ -35,19 +35,23 @@ public:
 	Q_INVOKABLE void sendSetHeightCommand(QVariant height);
 
 signals:
-	void systemStatusUpdated(QVariant newSystemStatus);
+	void systemStatusUpdatedSignal(QVariant newSystemStatus);
+	void connectToServerSignal();
+	void disconnectFromServerSignal();
+	void writeDataToRamSignal(int address, QByteArray data);
+	void readDataFromRamSignal(int address, QByteArray* data, int bytesCount);
 
 public slots:
 	void statusUpdateTimer();
-	void timeoutTimerEvent();
 
 protected:
-	void writeToSCR(int cmd);
+	void writeToSCR(int cmd, int retryCount);
+	void waitOperationCompleted();
 
 protected:
-	WirelessModbus m_wirelessModbus;
+	QThread m_thread;
+	WirelessModbus* m_wirelessModbus;
 	QTimer m_statusUpdateTimer;
-	QTimer m_timeoutTimer;
 	QFuture<bool> m_concurrentFuture;
 };
 
