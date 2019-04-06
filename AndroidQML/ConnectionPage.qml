@@ -24,6 +24,9 @@ Item {
 			return
 		}
 
+		labelText.text = ""
+		labelText.color = "#FFFFFF"
+		progressBar.visible = false
 		connectButton.visible = true
 		showControlPage()
 	}

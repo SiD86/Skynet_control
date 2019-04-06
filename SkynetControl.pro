@@ -1,4 +1,4 @@
-QT += qml quick xml svg concurrent network
+QT += qml quick xml svg network
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -13,9 +13,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    core.cpp \
     main.cpp \
-    wirelessmodbus.cpp
+    wirelessmodbus.cpp \
+    core.cpp
 
 RESOURCES += qml.qrc
 
@@ -58,4 +58,6 @@ DISTFILES += \
 contains(ANDROID_TARGET_ARCH,arm64-v8a) {
     ANDROID_PACKAGE_SOURCE_DIR = \
         $$PWD/android
+
+    ANDROID_EXTRA_LIBS =
 }

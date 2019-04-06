@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QTimer>
-#include <QtConcurrentRun>
 #include <QFuture>
 #include "wirelessmodbus.h"
 
@@ -13,6 +12,7 @@ class Core : public QObject {
 
 public:
 	explicit Core(QObject *parent = nullptr);
+	virtual ~Core();
 	Q_INVOKABLE bool connectToServer();
 	Q_INVOKABLE void disconnectFromServer();
 
@@ -29,13 +29,13 @@ public:
 	Q_INVOKABLE void sendAttackLeftCommand();
 	Q_INVOKABLE void sendAttackRightCommand();
 	Q_INVOKABLE void sendDanceCommand();
-	Q_INVOKABLE void sendUpdateHeightCommand();
+	Q_INVOKABLE void sendIncreaseHeightCommand();
+	Q_INVOKABLE void sendDecreaseHeightCommand();
 	Q_INVOKABLE void sendStopMoveCommand();
-
-	Q_INVOKABLE void sendSetHeightCommand(QVariant height);
 
 signals:
 	void systemStatusUpdatedSignal(QVariant newSystemStatus);
+	void systemVoltageUpdatedSignal(int wireless, int periph, int battery);
 	void connectToServerSignal();
 	void disconnectFromServerSignal();
 	void writeDataToRamSignal(int address, QByteArray data);

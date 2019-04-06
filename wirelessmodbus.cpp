@@ -261,29 +261,25 @@ bool WirelessModbus::processModbusTransaction(const QByteArray& request, QByteAr
 			return false;
 		}
 	}
-	qDebug() << "WirelessModbus: [processModbusTransaction] Frame received: " << m_socket->bytesAvailable();
 
 	// Read response
 	QByteArray response = m_socket->readAll();
 
 	// Verify response
 	if (this->calculateCRC16(response) != 0) {
-		qDebug() << "WirelessModbus: [processModbusTransaction] Wrong CRC";
 		return false;
 	}
 
 	// Check function code or exception
 	if (response[1] & MODBUS_EXCEPTION) {
-		qDebug() << "WirelessModbus: [processModbusTransaction] Exception received: " << response[2];
 		return false;
 	}
 
 	// Copy data from response
 	if (request[1] == MODBUS_CMD_READ_RAM || request[1] == MODBUS_CMD_READ_EEPROM) {
-		*responseData = response.mid(3);
+		*responseData = response.mid(3, request[4]);
 	}
 
-	qDebug() << "WirelessModbus: [processModbusTransaction] Response received";
 	return true;
 }
 

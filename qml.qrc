@@ -23,10 +23,11 @@
         <file>images/dance.svg</file>
         <file>images/swordLeft.svg</file>
         <file>images/swordRight.svg</file>
-        <file>images/update.svg</file>
         <file>images/getDown.svg</file>
         <file>images/getUp.svg</file>
         <file>AndroidQML/ConnectionPage.qml</file>
+        <file>images/decreaseHeight.svg</file>
+        <file>images/increaseHeight.svg</file>
     </qresource>
     <qresource prefix="/QML"/>
 </RCC>

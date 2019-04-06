@@ -5,6 +5,9 @@ import QtQuick.Layouts 1.3
 Item {
 
 	property real systemStatus: 0xFFFFFFFF
+	property real wirelessVoltage: 0
+	property real periphVoltage: 0
+	property real batteryVoltage: 0
 
 	id: root
 	width: 500
@@ -15,6 +18,11 @@ Item {
 		target: CppCore
 		onSystemStatusUpdatedSignal: {
 			systemStatus = newSystemStatus
+		}
+		onSystemVoltageUpdatedSignal: {
+			wirelessVoltage = wireless / 10.0
+			periphVoltage = periph / 10.0
+			batteryVoltage = battery / 10.0
 		}
 	}
 
@@ -191,45 +199,6 @@ Item {
 	}
 
 	Item {
-		height: 50
-		anchors.right: parent.right
-		anchors.rightMargin: 120
-		anchors.left: parent.left
-		anchors.leftMargin: 10
-		anchors.top: parent.top
-		anchors.topMargin: 290
-
-		ImageButton {
-			id: updateHeightButton
-			width: 105
-			anchors.top: parent.top
-			anchors.bottom: parent.bottom
-			anchors.right: parent.right
-			imageSrc: "qrc:/images/update.svg"
-			onButtonClicked: {
-				CppCore.sendSetHeightCommand(heightSpinBox.value)
-				CppCore.sendUpdateHeightCommand()
-			}
-		}
-
-		SpinBox {
-			id: heightSpinBox
-			font.pointSize: 13
-			anchors.top: parent.top
-			anchors.bottom: parent.bottom
-			anchors.right: updateHeightButton.left
-			anchors.rightMargin: 5
-			anchors.left: parent.left
-
-			editable: false
-			stepSize: 5
-			from: 85
-			value: 85
-			to: 185
-		}
-	}
-
-	Item {
 		height: 80
 		anchors.right: parent.right
 		anchors.rightMargin: 10
@@ -279,7 +248,7 @@ Item {
 			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
-			value: 4.2
+			value: batteryVoltage
 			to: 8.4
 		}
 
@@ -291,7 +260,7 @@ Item {
 			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
-			value: 2.75
+			value: wirelessVoltage
 			to: 5.5
 		}
 
@@ -303,7 +272,7 @@ Item {
 			anchors.rightMargin: 45
 			anchors.left: parent.left
 			anchors.leftMargin: 50
-			value: 2.75
+			value: periphVoltage
 			to: 5.5
 		}
 
@@ -313,7 +282,7 @@ Item {
 			anchors.top: parent.top
 			anchors.right: parent.right
 			font.pointSize: 12
-			text: qsTr("8.4 V")
+			text: batteryVoltage
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
 		}
@@ -324,7 +293,7 @@ Item {
 			anchors.right: parent.right
 			anchors.verticalCenter: parent.verticalCenter
 			font.pointSize: 12
-			text: qsTr("5.0 V")
+			text: wirelessVoltage
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
 		}
@@ -335,7 +304,7 @@ Item {
 			anchors.right: parent.right
 			anchors.bottom: parent.bottom
 			font.pointSize: 12
-			text: qsTr("5.0 V")
+			text: periphVoltage
 			verticalAlignment: Text.AlignVCenter
 			horizontalAlignment: Text.AlignRight
 		}
@@ -427,22 +396,6 @@ Item {
 		}
 	}
 
-	ImageButton {
-		x: 410
-		y: 290
-		width: 105
-		height: 50
-		anchors.right: parent.right
-		anchors.rightMargin: 10
-		imageSrc: "qrc:/images/dance.svg"
-		onButtonPressed: {
-			CppCore.sendDanceCommand()
-		}
-		onButtonReleased: {
-			CppCore.sendStopMoveCommand()
-		}
-	}
-
 	GridLayout {
 		height: 175
 		rowSpacing: 4
@@ -467,17 +420,17 @@ Item {
 		}
 
 		StatusLabel {
-			text: "GUI"
+			text: "Reserved"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00400000
-			deactiveColor: "#00DD00"
+			//deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
-			text: "Monitoring"
+			text: "GUI"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
@@ -487,13 +440,13 @@ Item {
 		}
 
 		StatusLabel {
-			text: "Reserved"
+			text: "Monitoring"
 			Layout.minimumHeight: 40
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00100000
-			//deactiveColor: "#00DD00"
+			deactiveColor: "#00DD00"
 		}
 
 		StatusLabel {
@@ -534,6 +487,46 @@ Item {
 			Layout.fillWidth: true
 			isActive: systemStatus & 0x00010000
 			deactiveColor: "#00DD00"
+		}
+	}
+
+	RowLayout {
+		height: 50
+		anchors.top: parent.top
+		anchors.topMargin: 300
+		anchors.left: parent.left
+		anchors.leftMargin: 10
+		anchors.right: parent.right
+		anchors.rightMargin: 10
+
+		ImageButton {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			imageSrc: "qrc:/images/increaseHeight.svg"
+			onButtonClicked: {
+				CppCore.sendIncreaseHeightCommand()
+			}
+		}
+
+		ImageButton {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			imageSrc: "qrc:/images/decreaseHeight.svg"
+			onButtonClicked: {
+				CppCore.sendDecreaseHeightCommand()
+			}
+		}
+
+		ImageButton {
+			Layout.fillHeight: true
+			Layout.fillWidth: true
+			imageSrc: "qrc:/images/dance.svg"
+			onButtonPressed: {
+				CppCore.sendDanceCommand()
+			}
+			onButtonReleased: {
+				CppCore.sendStopMoveCommand()
+			}
 		}
 	}
 }

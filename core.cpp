@@ -2,7 +2,6 @@
 #include <QGuiApplication>
 #include <QDebug>
 #include <QEventLoop>
-#include <QtConcurrentRun>
 
 
 Core::Core(QObject *parent) : QObject(parent) {
@@ -18,6 +17,12 @@ Core::Core(QObject *parent) : QObject(parent) {
 	connect(this, &Core::disconnectFromServerSignal, m_wirelessModbus, &WirelessModbus::disconnectFromServer);
 	connect(this, &Core::writeDataToRamSignal, m_wirelessModbus, &WirelessModbus::writeRAM);
 	connect(this, &Core::readDataFromRamSignal, m_wirelessModbus, &WirelessModbus::readRAM);
+}
+
+Core::~Core() {
+
+	m_thread.quit();
+	delete m_wirelessModbus;
 }
 
 bool Core::connectToServer() {
@@ -55,26 +60,13 @@ void Core::sendRotateRightShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_RO
 void Core::sendAttackLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_LEFT, 1);            }
 void Core::sendAttackRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_RIGHT, 1);           }
 void Core::sendDanceCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DANCE, 1);                  }
-void Core::sendUpdateHeightCommand()     { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UPDATE_HEIGHT, 1);          }
+void Core::sendIncreaseHeightCommand()   { writeToSCR(SCR_CMD_SELECT_SEQUENCE_INCREASE_HEIGHT, 1);        }
+void Core::sendDecreaseHeightCommand()   { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DECREASE_HEIGHT, 1);        }
 void Core::sendStopMoveCommand()         { writeToSCR(SCR_CMD_SELECT_SEQUENCE_NONE, 5);                   }
 
-void Core::sendSetHeightCommand(QVariant height) {
-
-	if (m_concurrentFuture.isFinished() == false) return;
-
-
-	uint32_t height32 = static_cast<uint32_t>(height.toInt());
-
-	QByteArray data;
-	data.push_back(static_cast<char>(SCR_CMD_SET_HEXAPOD_HEIGHT));
-	data.push_back(static_cast<char>((height32 >> 24) & 0xFF));
-	data.push_back(static_cast<char>((height32 >> 16) & 0xFF));
-	data.push_back(static_cast<char>((height32 >>  8) & 0xFF));
-	data.push_back(static_cast<char>((height32 >>  0) & 0xFF));
-	m_wirelessModbus->writeRAM(SCR_REGISTER_ADDRESS, data);
-}
-
-
+//
+// PROTECTED
+//
 void Core::writeToSCR(int cmd, int retryCount) {
 
 	QByteArray data;
@@ -107,7 +99,7 @@ void Core::waitOperationCompleted() {
 void Core::statusUpdateTimer() {
 
 	QByteArray buffer;
-	emit readDataFromRamSignal(ERROR_STATUS_ADDRESS, &buffer, 4);
+	emit readDataFromRamSignal(ERROR_STATUS_ADDRESS, &buffer, 7);
 	waitOperationCompleted();
 
 	if (m_wirelessModbus->operationResult() == false) {
@@ -115,10 +107,9 @@ void Core::statusUpdateTimer() {
 	}
 
 	// Make error status
-	if (buffer.size() == 4) {
+	if (buffer.size() == 7) {
 		uint32_t errorStatus = static_cast<uint32_t>((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | (buffer[0] << 0));
 		emit systemStatusUpdatedSignal(errorStatus);
+		emit systemVoltageUpdatedSignal(buffer[4], buffer[5], buffer[6]);
 	}
-
-	qDebug() << "status recv";
 }
