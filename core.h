@@ -2,9 +2,8 @@
 #define CORE_H
 
 #include <QObject>
-#include <QTimer>
-#include <QFuture>
-#include "wirelessmodbus.h"
+#include <QNetworkAccessManager>
+#include "modbus.h"
 
 class Core : public QObject {
 
@@ -13,46 +12,21 @@ class Core : public QObject {
 public:
 	explicit Core(QObject *parent = nullptr);
 	virtual ~Core();
-	Q_INVOKABLE bool connectToServer();
-	Q_INVOKABLE void disconnectFromServer();
-
-	Q_INVOKABLE void sendGetUpCommand();
-	Q_INVOKABLE void sendGetDownCommand();
-	Q_INVOKABLE void sendDirectMoveCommand();
-	Q_INVOKABLE void sendReverseMoveCommand();
-	Q_INVOKABLE void sendRotateLeftCommand();
-	Q_INVOKABLE void sendRotateRightCommand();
-	Q_INVOKABLE void sendDirectMoveShortCommand();
-	Q_INVOKABLE void sendReverseMoveShortCommand();
-	Q_INVOKABLE void sendRotateLeftShortCommand();
-	Q_INVOKABLE void sendRotateRightShortCommand();
-	Q_INVOKABLE void sendAttackLeftCommand();
-	Q_INVOKABLE void sendAttackRightCommand();
-	Q_INVOKABLE void sendDanceCommand();
-	Q_INVOKABLE void sendIncreaseHeightCommand();
-	Q_INVOKABLE void sendDecreaseHeightCommand();
-	Q_INVOKABLE void sendStopMoveCommand();
+	Q_INVOKABLE bool findDevice();
+	Q_INVOKABLE bool requestConfigurationListFromServer();
+	Q_INVOKABLE bool requestConfigurationFileFromServer(QString version);
+	Q_INVOKABLE bool loadConfigurationToDevice();
 
 signals:
-	void systemStatusUpdatedSignal(QVariant newSystemStatus);
-	void systemVoltageUpdatedSignal(int wireless, int periph, int battery);
-	void connectToServerSignal();
-	void disconnectFromServerSignal();
-	void writeDataToRamSignal(int address, QByteArray data);
-	void readDataFromRamSignal(int address, QByteArray* data, int bytesCount);
-
-public slots:
-	void statusUpdateTimer();
+	void configurationFound(QString configurationName);
+	void showLogMessage(QString message);
 
 protected:
-	void writeToSCR(int cmd, int retryCount);
-	void waitOperationCompleted();
+	void getMemoryDumpFromRawData(QString &rawData, QByteArray &memoryDump);
 
 protected:
-	QThread m_thread;
-	WirelessModbus* m_wirelessModbus;
-	QTimer m_statusUpdateTimer;
-	QFuture<bool> m_concurrentFuture;
+	Modbus m_modbus;
+	QNetworkAccessManager m_accessManager;
 };
 
 #endif // CORE_H

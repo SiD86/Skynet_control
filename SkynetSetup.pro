@@ -1,4 +1,4 @@
-QT += qml quick xml svg network
+QT += qml quick widgets xml svg network serialport concurrent
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -13,9 +13,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    core.cpp \
     main.cpp \
-    wirelessmodbus.cpp \
-    core.cpp
+    modbus.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,32 +32,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     core.h \
-    wirelessmodbus.h
-
-contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
-    ANDROID_PACKAGE_SOURCE_DIR = \
-        $$PWD/android
-
-    ANDROID_EXTRA_LIBS = \
-        E:/Unknown/4/trunk/libs/libcrypto.so \
-        E:/Unknown/4/trunk/libs/libssl.so
-}
-
-DISTFILES += \
-    android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
-    android/res/drawable-hdpi/icon.png \
-    android/res/drawable-ldpi/icon.png \
-    android/res/drawable-mdpi/icon.png
-
-contains(ANDROID_TARGET_ARCH,arm64-v8a) {
-    ANDROID_PACKAGE_SOURCE_DIR = \
-        $$PWD/android
-
-    ANDROID_EXTRA_LIBS =
-}
+    modbus.h

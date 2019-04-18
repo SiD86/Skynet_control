@@ -1,115 +1,207 @@
 #include "core.h"
-#include <QGuiApplication>
+#include <QApplication>
 #include <QDebug>
-#include <QEventLoop>
+#include <QtConcurrent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QFileDialog>
+#include <QFile>
+
+const QString reposityroBaseUrl = "https://raw.githubusercontent.com/NeoProg2013/SkynetConfigurations/master/";
+const QString versionFileName = "VERSION";
 
 
 Core::Core(QObject *parent) : QObject(parent) {
 
-	m_statusUpdateTimer.setInterval(1000);
-	connect(&m_statusUpdateTimer, &QTimer::timeout, this, &Core::statusUpdateTimer);
-
-	m_wirelessModbus = new WirelessModbus;
-	m_wirelessModbus->moveToThread(&m_thread);
-	m_thread.start();
-
-	connect(this, &Core::connectToServerSignal, m_wirelessModbus, &WirelessModbus::connectToServer);
-	connect(this, &Core::disconnectFromServerSignal, m_wirelessModbus, &WirelessModbus::disconnectFromServer);
-	connect(this, &Core::writeDataToRamSignal, m_wirelessModbus, &WirelessModbus::writeRAM);
-	connect(this, &Core::readDataFromRamSignal, m_wirelessModbus, &WirelessModbus::readRAM);
 }
 
 Core::~Core() {
 
-	m_thread.quit();
-	delete m_wirelessModbus;
 }
 
-bool Core::connectToServer() {
+bool Core::findDevice() {
 
-	emit connectToServerSignal();
-	this->waitOperationCompleted();
+	auto future = QtConcurrent::run(&m_modbus, &Modbus::findDevice);
+	while (future.isFinished() == false) {
+		QApplication::processEvents();
+	}
 
-	if (m_wirelessModbus->operationResult() == false) {
-		m_statusUpdateTimer.stop();
+	return future.result();
+}
+
+bool Core::requestConfigurationListFromServer() {
+
+	emit showLogMessage("Download file with available versions");
+
+	// Download file with version list
+	QNetworkRequest request(QUrl(reposityroBaseUrl + versionFileName));
+	QNetworkReply* reply = m_accessManager.get(request);
+	while (!reply->isFinished()) {
+		QApplication::processEvents();
+	}
+
+	// Check errors
+	if (reply->error() != QNetworkReply::NetworkError::NoError) {
+		emit showLogMessage("Operation failed");
 		return false;
 	}
 
-	m_statusUpdateTimer.start();
+	// Read data
+	QString rawFileData = QString::fromUtf8(reply->readAll());
+	delete reply;
+
+	emit showLogMessage("Get configuration list");
+
+	// Parse versions
+	QList<QString> versionList;
+	while (true) {
+
+		int index = rawFileData.indexOf("\r\n");
+		if (index == -1) {
+			break;
+		}
+
+		QString version = rawFileData.mid(0, index);
+		rawFileData.remove(0, index + 2);
+
+		emit configurationFound(version);
+		QApplication::processEvents();
+	}
+
+	// Last version number
+	emit configurationFound(rawFileData);
+
+	emit showLogMessage("Operation completed");
 	return true;
 }
 
-void Core::disconnectFromServer() {
+bool Core::requestConfigurationFileFromServer(QString version) {
 
-	m_statusUpdateTimer.stop();
+	QString pathToSaveFile = QFileDialog::getSaveFileName();
+	if (pathToSaveFile.size() == 0) {
+		return true;
+	}
 
-	emit disconnectFromServerSignal();
-	this->waitOperationCompleted();
+	// Download configuration file
+	emit showLogMessage("Download configuration from server");
+	QNetworkRequest request(QUrl(reposityroBaseUrl + version));
+	QNetworkReply* reply = m_accessManager.get(request);
+	while (!reply->isFinished()) {
+		QApplication::processEvents();
+	}
+
+	// Check errors
+	if (reply->error() != QNetworkReply::NetworkError::NoError) {
+		emit showLogMessage("Operation failed");
+		return false;
+	}
+
+	// Create file
+	emit showLogMessage("Create destination file");
+	QFile saveFile(pathToSaveFile);
+	if (saveFile.open(QFile::ReadWrite) == false) {
+		emit showLogMessage("Operation failed");
+		return false;
+	}
+
+	// Write data to file
+	saveFile.write(reply->readAll());
+	delete reply;
+	saveFile.close();
+
+	emit showLogMessage("Operation completed");
+	return true;
 }
 
-void Core::sendGetUpCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_UP, 1);                     }
-void Core::sendGetDownCommand()          { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DOWN, 1);                   }
-void Core::sendDirectMoveCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT, 1);        }
-void Core::sendReverseMoveCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT, 1);       }
-void Core::sendRotateLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT, 1);            }
-void Core::sendRotateRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT, 1);           }
-void Core::sendDirectMoveShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DIRECT_MOVEMENT_SHORT, 1);  }
-void Core::sendReverseMoveShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_REVERSE_MOVEMENT_SHORT, 1); }
-void Core::sendRotateLeftShortCommand()  { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_LEFT_SHORT, 1);      }
-void Core::sendRotateRightShortCommand() { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ROTATE_RIGHT_SHORT, 1);     }
-void Core::sendAttackLeftCommand()       { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_LEFT, 1);            }
-void Core::sendAttackRightCommand()      { writeToSCR(SCR_CMD_SELECT_SEQUENCE_ATTACK_RIGHT, 1);           }
-void Core::sendDanceCommand()            { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DANCE, 1);                  }
-void Core::sendIncreaseHeightCommand()   { writeToSCR(SCR_CMD_SELECT_SEQUENCE_INCREASE_HEIGHT, 1);        }
-void Core::sendDecreaseHeightCommand()   { writeToSCR(SCR_CMD_SELECT_SEQUENCE_DECREASE_HEIGHT, 1);        }
-void Core::sendStopMoveCommand()         { writeToSCR(SCR_CMD_SELECT_SEQUENCE_NONE, 5);                   }
+bool Core::loadConfigurationToDevice() {
 
-//
-// PROTECTED
-//
-void Core::writeToSCR(int cmd, int retryCount) {
+	QString pathToFile = QFileDialog::getOpenFileName();
+	if (pathToFile.size() == 0) {
+		return true;
+	}
 
-	QByteArray data;
-	data.push_back(static_cast<char>(cmd));
+	// Open file
+	emit showLogMessage("Read data from file");
+	QFile saveFile(pathToFile);
+	if (saveFile.open(QFile::ReadWrite) == false) {
+		emit showLogMessage("Operation failed");
+		return false;
+	}
 
-	for (int i = 0; i < retryCount; ++i) {
+	// Read data
+	QString rawFileData = QString::fromUtf8(saveFile.readAll());
+	saveFile.close();
 
-		emit writeDataToRamSignal(SCR_REGISTER_ADDRESS, data);
-		this->waitOperationCompleted();
+	// Get memory dump
+	emit showLogMessage("Getting memory dump");
+	QByteArray memoryDump;
+	this->getMemoryDumpFromRawData(rawFileData, memoryDump);
 
-		if (m_wirelessModbus->operationResult()) {
-			break;
+	// Search device
+	emit showLogMessage("Start search device");
+	if (m_modbus.findDevice() == false) {
+		emit showLogMessage("Operation failed");
+		return false;
+	}
+
+	// Write data to device
+	emit showLogMessage("Start write data to device");
+	for (int i = 0; i < memoryDump.size(); i += 16) {
+
+		// Make data block
+		QByteArray dataBlock = memoryDump.mid(i, 16);
+
+		// Make address for log message
+		QString address = QString::number(i, 16).toUpper();
+		while (address.size() != 4) {
+			address.insert(0, '0');
+		}
+
+		// Send modbus request for write data
+		emit showLogMessage("Write data to address " + address);
+		if (m_modbus.writeEEPROM(static_cast<uint16_t>(i), dataBlock) == false) {
+			emit showLogMessage("Operation failed");
+			return false;
 		}
 	}
-}
 
-void Core::waitOperationCompleted() {
-
-	while (m_wirelessModbus->isOperationInProgress() == false);
-	while (m_wirelessModbus->isOperationInProgress() == true) {
-		QGuiApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-	}
+	emit showLogMessage("Operation completed");
+	return true;
 }
 
 
 
-//
-// SLOTS
-//
-void Core::statusUpdateTimer() {
 
-	QByteArray buffer;
-	emit readDataFromRamSignal(ERROR_STATUS_ADDRESS, &buffer, 7);
-	waitOperationCompleted();
+void Core::getMemoryDumpFromRawData(QString& rawData, QByteArray& memoryDump) {
 
-	if (m_wirelessModbus->operationResult() == false) {
-		return;
+	// Remove spaces and \r \n symbols
+	while (true) {
+
+		int index = rawData.indexOf(QRegExp("\\ |\\\n|\\\r"));
+		if (index == -1) {
+			break;
+		}
+		rawData.remove(index, 1);
 	}
 
-	// Make error status
-	if (buffer.size() == 7) {
-		uint32_t errorStatus = static_cast<uint32_t>((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | (buffer[0] << 0));
-		emit systemStatusUpdatedSignal(errorStatus);
-		emit systemVoltageUpdatedSignal(buffer[4], buffer[5], buffer[6]);
+	// Parse data
+	while (true) {
+
+		// Search and remove address
+		int index = rawData.indexOf(QRegExp("....\\:"));
+		if (index == -1) {
+			break;
+		}
+		rawData.remove(index, 5);
+
+		// Read data line
+		for (int i = 0; i < 16; ++i) {
+
+			QString numberStr = rawData.mid(0, 2);
+			memoryDump.push_back(static_cast<char>(numberStr.toInt(nullptr, 16)));
+
+			rawData.remove(0, 2);
+		}
 	}
 }
