@@ -8,7 +8,7 @@
 #include <QFileDialog>
 #include <QFile>
 
-const QString reposityroBaseUrl = "https://raw.githubusercontent.com/NeoProg2013/SkynetConfigurations/master/";
+const QString reposityroBaseUrl = "https://raw.githubusercontent.com/NeoProg2013/Skynet_configurations/master/";
 const QString versionFileName = "VERSION";
 
 
