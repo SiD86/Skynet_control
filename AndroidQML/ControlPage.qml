@@ -329,7 +329,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000080
+			isActive: systemStatus & 0x0080
 		}
 
 		StatusLabel {
@@ -338,7 +338,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000040
+			isActive: systemStatus & 0x0040
 		}
 
 		StatusLabel {
@@ -347,7 +347,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000020
+			isActive: systemStatus & 0x0020
 		}
 
 		StatusLabel {
@@ -356,7 +356,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000010
+			isActive: systemStatus & 0x0010
 		}
 
 		StatusLabel {
@@ -365,7 +365,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000008
+			isActive: systemStatus & 0x0008
 		}
 
 		StatusLabel {
@@ -374,7 +374,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000004
+			isActive: systemStatus & 0x0004
 		}
 
 		StatusLabel {
@@ -383,7 +383,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000002
+			isActive: systemStatus & 0x0002
 		}
 
 		StatusLabel {
@@ -392,7 +392,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00000001
+			isActive: systemStatus & 0x0001
 		}
 	}
 
@@ -415,7 +415,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00800000
+			isActive: systemStatus & 0x8000
 			//deactiveColor: "#00DD00"
 		}
 
@@ -425,7 +425,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00400000
+			isActive: systemStatus & 0x4000
 			//deactiveColor: "#00DD00"
 		}
 
@@ -435,7 +435,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00200000
+			isActive: systemStatus & 0x2000
 			deactiveColor: "#00DD00"
 		}
 
@@ -445,7 +445,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00100000
+			isActive: systemStatus & 0x1000
 			deactiveColor: "#00DD00"
 		}
 
@@ -455,7 +455,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00080000
+			isActive: systemStatus & 0x0800
 			deactiveColor: "#00DD00"
 		}
 
@@ -465,7 +465,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00040000
+			isActive: systemStatus & 0x0400
 			deactiveColor: "#00DD00"
 		}
 
@@ -475,7 +475,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00020000
+			isActive: systemStatus & 0x0200
 			deactiveColor: "#00DD00"
 		}
 
@@ -485,7 +485,7 @@ Item {
 			Layout.maximumHeight: 40
 			Layout.preferredWidth: 118
 			Layout.fillWidth: true
-			isActive: systemStatus & 0x00010000
+			isActive: systemStatus & 0x0100
 			deactiveColor: "#00DD00"
 		}
 	}

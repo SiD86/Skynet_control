@@ -24,7 +24,7 @@
 #define		SCR_CMD_SELECT_SEQUENCE_DECREASE_HEIGHT			(0x89)
 #define		SCR_CMD_SELECT_SEQUENCE_NONE					(0x90)
 
-#define ERROR_STATUS_ADDRESS								(0x0000)
+#define MAIN_BLOCK_ADDRESS									(0x0010)
 
 
 class WirelessModbus : public QObject {

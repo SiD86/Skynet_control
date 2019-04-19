@@ -99,7 +99,7 @@ void Core::waitOperationCompleted() {
 void Core::statusUpdateTimer() {
 
 	QByteArray buffer;
-	emit readDataFromRamSignal(ERROR_STATUS_ADDRESS, &buffer, 7);
+	emit readDataFromRamSignal(MAIN_BLOCK_ADDRESS, &buffer, 10);
 	waitOperationCompleted();
 
 	if (m_wirelessModbus->operationResult() == false) {
@@ -107,9 +107,9 @@ void Core::statusUpdateTimer() {
 	}
 
 	// Make error status
-	if (buffer.size() == 7) {
-		uint32_t errorStatus = static_cast<uint32_t>((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | (buffer[0] << 0));
+	if (buffer.size() == 10) {
+		uint16_t errorStatus = static_cast<uint16_t>((buffer[1] << 8) | (buffer[0] << 0));
 		emit systemStatusUpdatedSignal(errorStatus);
-		emit systemVoltageUpdatedSignal(buffer[4], buffer[5], buffer[6]);
+		emit systemVoltageUpdatedSignal(buffer[2], buffer[3], buffer[4]);
 	}
 }
